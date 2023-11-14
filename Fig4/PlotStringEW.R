@@ -41,17 +41,6 @@ make_rocs <- function(){
   }
 
   ## RF
-  set.seed(123L)
-  #to_samp <- sum(actual)
-  pos <- which(actual)
-  cat("Num positives: ", sum(actual), '\n')
-  neg <- which(!actual)
-  cat("\t Ensemble CV: ")
-  #nfold <- 2L
-  classes <- rep(0, length(actual))
-  classes[pos] <- sample(rep(seq_len(nfold), length.out=length(pos)))
-  classes[neg] <- sample(rep(seq_len(nfold), length.out=length(neg)))
-
   scoresE <- suppressWarnings(vcheckans(rowSums(FullSubscoresString[,14:16]), actual))
 
   resultsList[[2]]$RandomForest <- scoresE
@@ -106,7 +95,7 @@ plot_heatmap <- function(rocdata){
   par(xpd=NA)
   ewd <- rocdata$EvoWeaver
   strd <- rocdata$STRING
-  cormat <- matrix(NA, nrow=length(strd)-2, ncol=length(ewd)-3)
+  cormat <- matrix(NA, nrow=length(strd)-1, ncol=length(ewd)-1)
   pTP <- rocdata$StringScores$ActualCat <= 2
   for(i in seq_len(nrow(cormat))){
     for(j in seq_len(ncol(cormat))){
