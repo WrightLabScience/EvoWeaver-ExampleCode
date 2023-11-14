@@ -7,8 +7,8 @@ load('ModulePredsAllPairs.RData')
 load('B3GNT5_ST6GAL1_plottingdata.RData', v=T)
 
 outdir <- './'
-outname <- '4_FigDiscoveryGraphs.pdf'
-outviolinname <- '4_FigDiscoveryViolin.pdf'
+outname <- '5_FigDiscoveryGraphs.pdf'
+outviolinname <- '5_FigDiscoveryViolin.pdf'
 
 ptsize <- 12
 legendcex <- 0.75
