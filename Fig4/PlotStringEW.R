@@ -3,7 +3,7 @@ make_rocs <- function(){
   require(neuralnet)
   require(randomForest)
   resultsList <- vector('list', 2)
-  source("PredictionCheck.R")
+  source("Fig3_and_Stats/PredictionCheck.R")
   load('StringPredictions50.RData')
   set.seed(123L)
   cutoff_positive_case <- 3L
