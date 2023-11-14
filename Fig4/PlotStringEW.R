@@ -108,16 +108,17 @@ plot_heatmap <- function(rocdata){
     }
   }
 
-  ## Renaming and reordering for consistency with other plots
+  #rownames(cormat) <- names(strd)[seq_len(nrow(cormat))]
   colnames(cormat) <- c("G/L Correlation", "P/A Jaccard", "G/L Distance",
                         "P/A MI", "RP ContextTree", "RP MirrorTree",
                         "Tree Distance", "Gene Distance", "Moran's I",
                         "Transcription MI", "Gene Vector", "Sequence Info")
   cormat <- cormat[,c(1,3,2,4,5:7,8,10,9,12,11)]
-  rownames(cormat) <- c("Neighborhood", "Cooccurrence", "Gene Fusion",
-                        "Experimental", "Coexpression", "Databases", "Textmining")
+  rownames(cormat) <- c("Gene Neighborhood", "Cooccurrence", "Gene Fusion",
+                        "Experimental Data", "Coexpression Data",
+                        "Databases", "Text Mining")
   cormat <- cormat[c(3,2,4,1,5,7,6),]
-
+  #colnames(cormat) <- names(ewd)[seq_len(ncol(cormat))]
   htmcols <- c("#1c6376", '#008585', "#4E998A","#7CAC94","#A4BEA5","#C3D4B1",'white',
                "#eee2a9","#eecd93","#edb588","#ea9c89","#DB6577","#a42f54")
 
@@ -159,16 +160,16 @@ plot_heatmap <- function(rocdata){
         text(x=xstart+(j-0.5)*boxwidth,
              y=ystart-0.3*boxheight,
              labels=colnames(cormat)[j],
-             srt=45, cex=0.75, adj=c(1,0.5))
+             srt=30, cex=0.75, adj=c(1,0.5))
       }
     }
   }
-  title(main=substitute(bold("Correlation of Scores ("~rho~")")), line=2, adj=0.5)
-  title(xlab="STRING Scores", mgp=c(2.5,1,0))
-  title(ylab="EvoWeaver Scores", mgp=c(3,1,0))
+  #title(main=substitute(bold("Correlation of Scores ("~rho~")")), line=2, adj=0.5)
+  title(xlab="STRING Evidence Streams", mgp=c(2.25,1,0), cex.lab=0.75)
+  title(ylab="EvoWeaver Component Predictors", mgp=c(3,1,0), cex.lab=0.75)
 
-  legxs <- 1.025
-  legys <- 0.05
+  legxs <- 1.065
+  legys <- 0.34
   legye <- legys+0.5
   legxe <- legxs+0.05
   legh <- (legye - legys)/length(cols)
@@ -182,6 +183,9 @@ plot_heatmap <- function(rocdata){
   lines(c(0, 0.015)+legxe, rep((legys+legye)/2,2), col='black', lwd=1.5)
   text(x=rep(0.05,3)+legxe, y=c(legys, legye, (legys+legye)/2)-6*legh,
        labels=c('-1', '+1', ' 0'), cex=0.75, adj=c(0.5,0))
+  text(x=legxs-0.025,y=legys+(legye-legys)/2,
+       labels=substitute("Spearman's"~rho),
+       cex=0.75, srt=90, adj=c(0.5,0.5))
   rect(xleft=legxs, xright=legxe,ybottom=legys,ytop=legye,
        border='black', lwd=1.5)
 }
@@ -190,26 +194,32 @@ plot_Fig4 <- function(rocdata, sr){
   of <- "4_FigStringEW.pdf"
   ptsize <- 12
   odir <- './'
+  tc0 <- 'grey40'
+  tc1 <- '#1E88E5'
+  tc2 <- '#D81B60'
   c1 <- '#2B6DA8'
-  #c2 <- '#E0A608'
   c3 <- 'white'
+  #tc2 <- '#FFC107'
+  #c2 <- '#E0A608'
   pdf(file=file.path(odir, of),
       width=4.3*2, height=4.3, pointsize = ptsize, onefile=TRUE)
   layout(matrix(1:2, nrow=1))
   sr <- c(0.50, sr, rocdata$EvoWeaver$RandomForest$AUROC)
   names(sr) <- c("  Random Guessing", "  Gene Fusion", "+ Cooccurrence",
-                        "+ Experimental", "+ Neighborhood", "+ Coexpression",
-                        "+ Textmining", "+ Databases",
+                 "+ Experimental Data", "+ Gene Neighborhood",
+                 "+ Coexpression Data",
+                 "+ Text Mining", "+ Databases",
                  "   EvoWeaver Random Forest")
   width <- 1
   space <- 0.2
   barplot(sr, names.arg='', yaxt='n', ylim=c(0,1),
-          main="Performance Predicting KEGG Pathways",
+          #main="Performance Predicting KEGG Pathways",
           space=c(0.1,0.6,rep(0.2,length(sr)-3),0.6),
-          col=c('grey', rep('#1E88E5', 7), '#FFC107'))
-  title(ylab="AUROC", mgp=c(1.5,1,0))
+          col=c(tc0, rep(tc1, 7), tc2))
+  title(ylab="Area Under ROC Curve (AUROC)",
+        mgp=c(1.5,1,0), cex.lab=0.75)
   axis(side=2, at=seq(0,1,0.1), mgp=c(0,0.5,0), cex.axis=0.75)
-
+  #abline(h=0.5, lty=2, col='black')
   offsets <- seq(from=0,by=space, length.out=length(sr))
   offsets <- offsets + 0.1
   offsets[2:length(offsets)] <- offsets[2:length(offsets)] + 0.4
@@ -217,32 +227,45 @@ plot_Fig4 <- function(rocdata, sr){
   labs <- names(sr)
 
   text(x=seq_along(sr) + offsets-0.35*width, y=0.025,
-       srt=90, labels=labs, cex=0.75, adj=c(0,0))
-  text(x=seq_along(sr)+offsets-1*width, y=sr+0.01,
+       srt=90, labels=labs, cex=0.75, adj=c(0,0), col=c3)
+  text(x=seq_along(sr)+offsets-1*width, y=sr+0.02,
        labels=sprintf("%.02f",sr), cex=0.75, adj=c(0,0))
+  #lines(x=rep(length(sr)-1+offsets[length(sr)]+0.5*space,2),
+  #      y=c(-0.15,1.1), col='#D81B60', xpd=NA, lwd=1.5)
 
   ## Arrow for x-axis
-  arrows(y0=-0.03, x0=offsets[2]+1, x1=length(sr)-1+offsets[length(sr)-1]-0.1,
+  yarrpos <- -0.03
+  xarrst <- offsets[2]+1.1
+  xarrend <- length(sr)-1+offsets[length(sr)-1]-0.1
+  lineoff <- 0.0135
+  arrows(y0=yarrpos, x0=xarrst, x1=xarrend,
          length=0.1, angle=20, col='black', lwd=3, xpd=NA)
-  text(y=-0.075, x=5.5, labels="More STRING Predictors", xpd=NA)
+  text(y=-0.075, x=5.5, labels="Additional STRING Predictors",
+       cex=0.75, xpd=NA)
+  lines(y=c(yarrpos+lineoff, yarrpos-lineoff), x=rep(xarrst-0.1,2),col='black', lwd=3, xpd=NA)
+  lines(y=c(yarrpos+lineoff, yarrpos-lineoff), x=rep(xarrend+0.1,2),col='black', lwd=3, xpd=NA)
 
   ## Arrows inside text/database bars
   for(k in c(7,8)){
-    arrows(y0=sr[k-1]+0.01, y1=sr[k]-0.01, x0=k+offsets[k]-0.4*width, length=0.025, col=c3)
-    lines(x=c(0.1*width, 0.9*width)+k-1+offsets[k], y=rep(sr[k-1],2), col=c3)
-    text(x=k+offsets[k]-0.7*width, y=(sr[k]-sr[k-1])/2+sr[k-1],
-         labels=sprintf("%.2f",sr[k]-sr[k-1]),
-         cex=0.5, srt=90, col=c3)
+    arrows(y0=sr[k-1], y1=sr[k]-0.01, x0=k+offsets[k]-0.5*width,
+           length=0.05, col=c3, lwd=2, angle=35)
+    lines(x=c(0.345*width, 0.655*width)+k-1+offsets[k], y=rep(sr[k-1],2), col=c3, lwd=2)
+    text(x=k+offsets[k]-0.5*width, y=sr[k-1]-(sr[k]-sr[k-1])*0.8,
+         labels=sprintf("+%.2f",sr[k]-sr[k-1]),
+         cex=0.75, srt=90, col=c3)
   }
 
   ## Labeling last two bars
   yoff <- 0.03
-  xoff <- 5.35
+  xoff <- 5.7
   lines(x=c(4+offsets[4]+0.5, 8+offsets[8]-1.15*width),
-        y=c(0.8225, sr[8]+0.025), lwd=2, col=c1)
-  text(x=5+offsets[5]-xoff, y=0.8+yoff, labels='STRING Total Score',
+        y=c(0.8225, sr[8]+0.035), lwd=1.5, col=c1)
+  text(x=5+offsets[5]-xoff, y=0.8+yoff, labels="STRING's Total Score",
        col=c1, cex=0.75, adj=c(0,0.5))
-
+  # lines(x=c(7+offsets[7], 9+offsets[9]-1.15*width),
+  #       y=c(0.95, sr[9]+0.025), lwd=2, col=c2)
+  # text(x=7+offsets[7]-xoff, y=0.95+yoff, labels='EvoWeaver Random Forest',
+  #      col=c2, cex=0.75, adj=c(0,0.5))
   plot_heatmap(rocdata)
 
   dev.off(dev.list()['pdf'])
