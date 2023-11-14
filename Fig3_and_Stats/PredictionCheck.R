@@ -46,26 +46,6 @@ check_ans <- function(p, a, cutoff, vectorIn=F, balance=F){
   return(res)
 }
 
-gen_control <- function(testnums){
-  load('/Users/aidan/Nextcloud/RStudioSync/streptomyces_data/PATHWAYS.RData')
-  testset <- PathwayToCog[testnums]
-  allcogs <- unique(unlist(testset))
-  control <- matrix(F, nrow=length(allcogs), ncol=length(allcogs))
-  for (j in seq_along(testset)){
-    p <- testset[[j]]
-    idxs <- sapply(p, function(x) which(x==allcogs))
-    allcombos <- combn(idxs, 2)
-    for (i in 1:ncol(allcombos)){
-      i1 <- allcombos[1,i]
-      i2 <- allcombos[2,i]
-      control[i1, i2] <- T
-      control[i2, i1] <- T
-    }
-  }
-  rownames(control) <- colnames(control) <- allcogs
-  return(control)
-}
-
 gen_roc <- function(p, a, nsub=100, checkfxn = check_ans, vectorIn=F, balance=F){
   ticks <- nsub + 2
   gradations <- seq(0, 1, length.out=ticks)

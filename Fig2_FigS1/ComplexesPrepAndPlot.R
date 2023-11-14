@@ -32,5 +32,5 @@ rnames <- names(toPlotMain)
 toPlotMain <- toPlotMain[c(1,3,2,4,5:8,10,9,12,11)]
 toPlotEnsemble <- toPlotEnsemble[c(2,3,1)]
 
-source('/Users/aidan/Nextcloud/RStudioSync/KEGGStuff/RESULTS/Plotting/Plot2x2Heatmap.R')
+source('Plot2x2Heatmap.R')
 plot_fig_2x2(toPlotMain, toPlotEnsemble, RawDataComplex, outfile, isComplex=TRUE)

@@ -5,7 +5,7 @@ txtpath <- 'COG.mappings.v12.0.txt'
 txtpathlinks <- 'COG.links.detailed.v12.0.txt'
 
 # This loads in the backmapping object to later map KOs to modules
-load('LargerData/ModulePredsAllPairs.RData')
+load('ModulePredsAllPairs.RData')
 
 allcogmap <- read.table(txtpath, sep='\t')
 pos_kegg <- which(grepl('KEGG', allcogmap[,5L]))
