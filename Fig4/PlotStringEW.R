@@ -260,5 +260,6 @@ plot_Fig4 <- function(rocdata, sr){
 }
 
 StringVsEW <- make_rocs()
+actual <- StringVsEW$StringScores$ActualCat <= 3
 StringRes <- calc_running_STRINGscore(StringVsEW$StringScores[,3:9], actual)
 plot_Fig4(StringVsEW, StringRes)
