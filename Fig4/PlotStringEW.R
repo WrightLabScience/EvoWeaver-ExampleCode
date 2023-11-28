@@ -1,10 +1,14 @@
+basepath <- './'
+
 ## ROC Curves
 make_rocs <- function(){
   require(neuralnet)
   require(randomForest)
   resultsList <- vector('list', 2)
-  source("Fig3_and_Stats/PredictionCheck.R")
-  load('StringPredictions50.RData')
+  #source("PredictionCheck.R")
+  #load('StringPredictions50.RData')
+  source(file.path(basepath, "Fig3", "PredictionCheck.R"))
+  load(file.path(basepath, 'Fig4', 'StringPredictions50.RData'))
   set.seed(123L)
   cutoff_positive_case <- 3L
   nfold <- 5L
@@ -41,6 +45,7 @@ make_rocs <- function(){
   }
 
   ## RF
+  cat("\t Ensemble")
   scoresE <- suppressWarnings(vcheckans(rowSums(FullSubscoresString[,14:16]), actual))
 
   resultsList[[2]]$RandomForest <- scoresE
@@ -107,7 +112,7 @@ plot_heatmap <- function(rocdata){
                               method = 'spearman'))
     }
   }
-
+  
   #rownames(cormat) <- names(strd)[seq_len(nrow(cormat))]
   colnames(cormat) <- c("G/L Correlation", "P/A Jaccard", "G/L Distance",
                         "P/A MI", "RP ContextTree", "RP MirrorTree",
@@ -121,7 +126,7 @@ plot_heatmap <- function(rocdata){
   #colnames(cormat) <- names(ewd)[seq_len(ncol(cormat))]
   htmcols <- c("#1c6376", '#008585', "#4E998A","#7CAC94","#A4BEA5","#C3D4B1",'white',
                "#eee2a9","#eecd93","#edb588","#ea9c89","#DB6577","#a42f54")
-
+  
   cols <- colorRampPalette(htmcols)(200)
   plot(NULL, xlab='', ylab='', xlim=c(0,1), ylim=c(0,1),
        type='n', frame.plot=FALSE, xaxt='n',yaxt='n')
@@ -155,7 +160,7 @@ plot_heatmap <- function(rocdata){
            y=ystart+(i-0.5)*boxheight,
            labels=flab,
            cex=0.75)
-
+      
       if(i==1){
         text(x=xstart+(j-0.5)*boxwidth,
              y=ystart-0.3*boxheight,
@@ -167,7 +172,7 @@ plot_heatmap <- function(rocdata){
   #title(main=substitute(bold("Correlation of Scores ("~rho~")")), line=2, adj=0.5)
   title(xlab="STRING Evidence Streams", mgp=c(2.25,1,0), cex.lab=0.75)
   title(ylab="EvoWeaver Component Predictors", mgp=c(3,1,0), cex.lab=0.75)
-
+  
   legxs <- 1.065
   legys <- 0.34
   legye <- legys+0.5
@@ -190,13 +195,19 @@ plot_heatmap <- function(rocdata){
        border='black', lwd=1.5)
 }
 
-plot_Fig4 <- function(rocdata, sr){
+plot_newFig <- function(rocdata, sr){
   of <- "4_FigStringEW.pdf"
   ptsize <- 12
-  odir <- './'
+  odir <- file.path(basepath, "Fig4")
+  EW_shades <- list(red=c('#E82B70','#C80B50','#A80030','#780000'),
+                    blue=c('#1E88E5','#0E68C5','#0048A5','#0028C5'),
+                    yellow=c('#FFC107','#DFA100','#BF8100'),
+                    green=c('#5CDC63','#3CBC83','#7CFC83'),
+                    black=c('black', 'gray60', 'gray80'))
+  EW_fonts <- c('#D81B60', '#E0A608', '#2B6DA8', '#45A649', 'black')
   tc0 <- 'grey40'
-  tc1 <- '#1E88E5'
-  tc2 <- '#D81B60'
+  tc1 <- EW_fonts[3]
+  tc2 <- EW_shades$yellow[3]
   c1 <- '#2B6DA8'
   c3 <- 'white'
   #tc2 <- '#FFC107'
@@ -225,14 +236,14 @@ plot_Fig4 <- function(rocdata, sr){
   offsets[2:length(offsets)] <- offsets[2:length(offsets)] + 0.4
   offsets[length(offsets)] <- offsets[length(offsets)]+0.4
   labs <- names(sr)
-
+  
   text(x=seq_along(sr) + offsets-0.35*width, y=0.025,
        srt=90, labels=labs, cex=0.75, adj=c(0,0), col=c3)
   text(x=seq_along(sr)+offsets-1*width, y=sr+0.02,
        labels=sprintf("%.02f",sr), cex=0.75, adj=c(0,0))
   #lines(x=rep(length(sr)-1+offsets[length(sr)]+0.5*space,2),
   #      y=c(-0.15,1.1), col='#D81B60', xpd=NA, lwd=1.5)
-
+  
   ## Arrow for x-axis
   yarrpos <- -0.03
   xarrst <- offsets[2]+1.1
@@ -244,7 +255,7 @@ plot_Fig4 <- function(rocdata, sr){
        cex=0.75, xpd=NA)
   lines(y=c(yarrpos+lineoff, yarrpos-lineoff), x=rep(xarrst-0.1,2),col='black', lwd=3, xpd=NA)
   lines(y=c(yarrpos+lineoff, yarrpos-lineoff), x=rep(xarrend+0.1,2),col='black', lwd=3, xpd=NA)
-
+  
   ## Arrows inside text/database bars
   for(k in c(7,8)){
     arrows(y0=sr[k-1], y1=sr[k]-0.01, x0=k+offsets[k]-0.5*width,
@@ -254,24 +265,24 @@ plot_Fig4 <- function(rocdata, sr){
          labels=sprintf("+%.2f",sr[k]-sr[k-1]),
          cex=0.75, srt=90, col=c3)
   }
-
+  
   ## Labeling last two bars
   yoff <- 0.03
-  xoff <- 5.7
-  lines(x=c(4+offsets[4]+0.5, 8+offsets[8]-1.15*width),
+  xoff <- 4.2
+  lines(x=c(5.25+offsets[8]+0.5, 8+offsets[8]-1.15*width),
         y=c(0.8225, sr[8]+0.035), lwd=1.5, col=c1)
-  text(x=5+offsets[5]-xoff, y=0.8+yoff, labels="STRING's Total Score",
+  text(x=5+offsets[8]-xoff, y=0.8+yoff, labels="STRING's Total Score",
        col=c1, cex=0.75, adj=c(0,0.5))
   # lines(x=c(7+offsets[7], 9+offsets[9]-1.15*width),
   #       y=c(0.95, sr[9]+0.025), lwd=2, col=c2)
   # text(x=7+offsets[7]-xoff, y=0.95+yoff, labels='EvoWeaver Random Forest',
   #      col=c2, cex=0.75, adj=c(0,0.5))
   plot_heatmap(rocdata)
-
+  
   dev.off(dev.list()['pdf'])
 }
 
 StringVsEW <- make_rocs()
 actual <- StringVsEW$StringScores$ActualCat <= 3
 StringRes <- calc_running_STRINGscore(StringVsEW$StringScores[,3:9], actual)
-plot_Fig4(StringVsEW, StringRes)
+plot_newFig(StringVsEW, StringRes)
