@@ -1,7 +1,8 @@
 library(SynExtend)
-
+basepath <- './'
+localpath <- file.path(basepath, "RunningEvoWeaver")
 # This contains two trees, two sets of location data, and a species tree
-load("ExampleData.RData")
+load(file.path(localpath, "ExampleData.RData"))
 
 algos <- c("GainLoss", "Jaccard", "Hamming", "CorrGL", "MutualInformation", "PAPV",
             "MirrorTree", "ContextTree", "TreeDistance",

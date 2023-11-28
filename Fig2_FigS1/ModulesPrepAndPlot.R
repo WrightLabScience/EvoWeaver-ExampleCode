@@ -1,5 +1,8 @@
+basepath <- "./"
+
 outfile <- '2_FigModule.pdf'
-load('ModuleStatistics.RData')
+outfile <- file.path(basepath, "Fig2_FigS1", outfile)
+load(file.path(basepath, "Fig2_FigS1", 'ModuleStatistics.RData'))
 names(BlockStatistics) <- c("CorrGL", "Jaccard", "GainLoss", "PAMI",
                        "RPCT", "RPMT", "TreeDistance",
                        "Coloc", "ColocMoran", "TranscripMI",
@@ -23,5 +26,5 @@ BlockStatistics <- BlockStatistics[rnames]
 EnsembleBlockStatistics <- EnsembleBlockStatistics[names(sort(vapply(EnsembleBlockStatistics, \(x) x$AUROC, numeric(1L)),decreasing=TRUE))]
 RawScores <- RawScores[,c(names(BlockStatistics), 'isTP')]
 
-source('Plot2x2Heatmap.R')
+source(file.path(basepath, 'Fig2_FigS1', 'Plot2x2Heatmap.R'))
 plot_fig_2x2(BlockStatistics, EnsembleBlockStatistics, RawScores, outfile)

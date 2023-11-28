@@ -1,5 +1,8 @@
+basepath <- './'
+
 outfile <- 'S1_FigComplex.pdf'
-load('ComplexStatistics.RData')
+outfile <- file.path(basepath, "Fig2_FigS1", outfile)
+load(file.path(basepath, "Fig2_FigS1", 'ComplexStatistics.RData'))
 reordervec <- c("CorrGL", "Jaccard", "GainLoss",
                 "MutualInformation",
                 "ContextTree", "MirrorTree",
@@ -32,5 +35,5 @@ rnames <- names(toPlotMain)
 toPlotMain <- toPlotMain[c(1,3,2,4,5:8,10,9,12,11)]
 toPlotEnsemble <- toPlotEnsemble[c(2,3,1)]
 
-source('Plot2x2Heatmap.R')
+source(file.path(basepath, 'Fig2_FigS1', 'Plot2x2Heatmap.R'))
 plot_fig_2x2(toPlotMain, toPlotEnsemble, RawDataComplex, outfile, isComplex=TRUE)

@@ -2,11 +2,19 @@ library(phytools)
 library(SynExtend)
 library(circlize)
 library(dendextend)
-source('PrepPlotGainLoss.R')
-load('ModulePredsAllPairs.RData')
-load('B3GNT5_ST6GAL1_plottingdata.RData', v=T)
 
-outdir <- './'
+basepath <- './'
+localpath <- file.path(basepath, 'Fig5')
+
+source(file.path(localpath, 'PrepPlotGainLoss.R'))
+
+## Must be downloaded from Zenodo
+load(file.path(basepath, "Fig2_FigS1", 'ModulePredsAllPairs.RData'))
+
+
+load(file.path(localpath,'B3GNT5_ST6GAL1_plottingdata.RData'))
+
+outdir <- localpath
 outname <- '5_FigDiscoveryGraphs.pdf'
 outviolinname <- '5_FigDiscoveryViolin.pdf'
 
@@ -34,7 +42,7 @@ layout(matrix(c(rep(0,3),rep(0,5),
 
 .plotColocAndLabels <- function(){
   # colocalization
-  y <- read.tree(ofile)
+  y <- ofile
   scale <- 1/5
   m <- 80
   ncd <- colocdiffs

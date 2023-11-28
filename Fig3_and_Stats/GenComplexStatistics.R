@@ -1,4 +1,8 @@
-load('ComplexPredsAllPairs.RData')
+basepath <- './'
+
+localpath <- file.path(basepath, "Fig3_and_Stats")
+
+load(file.path(localpath, 'ComplexPredsAllPairs.RData'))
 
 subpreds <- AllPairs[AllPairs$Category!=2,]
 all_props <- subpreds$MinMembers
@@ -101,4 +105,4 @@ RawScores$isTP <- key
 
 # This file is used in Fig2_FigS1
 save(ComplexStatistics, EnsembleComplexStatistics, RawScores,
-     file='ComplexStatistics.RData')
+     file=file.path(localpath, 'ComplexStatistics.RData'))

@@ -1,11 +1,17 @@
+basepath <- './'
+localpath <- file.path(basepath, "Fig4")
+
 #### Reading in STRING Data ####
 
 # These files can be downloaded from STRING, also available on Zenodo
 txtpath <- 'COG.mappings.v12.0.txt'
 txtpathlinks <- 'COG.links.detailed.v12.0.txt'
 
+txtpath <- file.path(localpath, txtpath)
+txtpathlinks <- file.path(localpath, txtpathlinks)
+
 # This loads in the backmapping object to later map KOs to modules
-load('ModulePredsAllPairs.RData')
+load(file.path(localpath, 'ModulePredsAllPairs.RData'))
 
 allcogmap <- read.table(txtpath, sep='\t')
 pos_kegg <- which(grepl('KEGG', allcogmap[,5L]))
@@ -127,4 +133,4 @@ EWScores <- SubPairs[IndexMapping,]
 # PlotStringEW.R relies on the "MinTreeBranch" column, which is simply the minimum
 # of the number of leaves in each pair of trees
 
-# save(FullSubscoresString, EWScores, file='StringPredictions50.RData')
+# save(FullSubscoresString, EWScores, file=file.path(localpath, 'StringPredictions50.RData'))

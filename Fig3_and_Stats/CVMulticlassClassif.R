@@ -1,12 +1,16 @@
+basepath <- "./"
+localpath <- file.path(basepath, "Fig3_and_Stats")
+
 library(randomForest)
-outfile <- 'MulticlassModuleData.RData'
+
+outfile <- file.path(localpath, 'MulticlassModuleData.RData')
 
 plot_heatmaps <- TRUE
-outdir <- '/Users/aidan/Nextcloud/RStudioSync/KEGGStuff/ModuleAllPairsJob'
+outdir <- localpath
 
 # precomputed statistics for each tree
-load("ModuleTreeStatistics.RData")
-load('ModulePredsAllPairs.RData', v=T)
+load(file.path(localpath, "ModuleTreeStatistics.RData"))
+load(file.path(localpath, 'ModulePredsAllPairs.RData'))
 subpreds <- AllPairs[!AllPairs$HasComplex,]
 Pairings <- subpreds[,c("Mod1", "Mod2")]
 subpreds$Jaccard <- subpreds$Jaccard*subpreds$PAPV
@@ -103,7 +107,7 @@ for(i in seq_along(testSets)){
 }
 
 fname <- 'FeatImportance.pdf'
-pdf(file=fname, width=3.5, height=2, pointsize = 6)
+pdf(file=file.path(localpath, fname), width=3.5, height=2, pointsize = 6)
 cvec <- c('#45A649','#D81B60', '#1E88E5','#FFC107')
 allconf <- vapply(testSets, \(x) importance(x$model, type=1L, scale=FALSE), numeric(nrow(testSets[[1]]$model$importance)))
 rownames(allconf) <- colnames(subpreds)[1:12]
@@ -259,5 +263,4 @@ head(mispreds, n=15)
 mispreds <- cbind(mispreds, AllPairs[rownames(mispreds),c("Mod1Orig", "Mod2Orig")])
 mispreds$Mod1Orig <- vapply(mispreds$Mod1Orig, paste, character(1L),collapse=',')
 mispreds$Mod2Orig <- vapply(mispreds$Mod2Orig, paste, character(1L),collapse=',')
-mcdirname <- 'CV_misclass.csv'
-write.csv(mispreds[seq_len(15),c(18,19,14,15,13,16,17)], file=file.path(mcdirname, 'Misclass_prop6.csv'))
+write.csv(mispreds[seq_len(15),c(18,19,14,15,13,16,17)], file=file.path(localpath, 'Misclass_prop6.csv'))

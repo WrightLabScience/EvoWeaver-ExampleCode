@@ -1,4 +1,8 @@
-load('ModulePredsAllPairs.RData')
+basepath <- './'
+
+localpath <- file.path(basepath, "Fig3_and_Stats")
+
+load(file.path(localpath, 'ModulePredsAllPairs.RData'))
 subpreds <- AllPairs[!AllPairs$HasComplex,]
 Pairings <- subpreds[,c("Mod1", "Mod2")]
 subpreds$Jaccard <- subpreds$Jaccard*subpreds$PAPV
@@ -99,5 +103,5 @@ RawScores$isTP <- key
 
 # This is used in Fig2_FigS1
 save(BlockStatistics, EnsembleBlockStatistics, RawScores,
-     file='ModuleStatistics.RData')
+     file=file.path(localpath, 'ModuleStatistics.RData'))
 
