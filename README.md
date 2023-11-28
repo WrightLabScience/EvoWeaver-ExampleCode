@@ -14,6 +14,8 @@ Pairwise scores are also used in comparison with STRING. Details on how STRING s
 
 The pairwise scores were also used for multiclass classification. This classification was done with `Fig3/CVMulticlassClassif.R`. This R script generates the results used in Figure 3, as well as Supplemental Table 2. The data saved from this script is available in `ModulesMulticlassData.RData` on Zenodo. Figure 4 used specific scores from the multiclass data, which are available in the `Fig5/B3GNT5_ST6GAL1_plottingdata.RData`. Generating the figure also requires the `ModulePredsAllPairs.RData` file from Zenodo.
 
+Scripts in each folder contain a `basepath` and `localpath` variable if they read/write data. `basepath` refers to the root folder in this repository, and `localpath` is the folder containing the script. If a file is not found, it is likely found on Zenodo.
+
 Figure 1 lacks data and was produced in Biorender--as such this repository does not contain a script to reproduce it.
 
 All associated data is stored on [Zenodo](https://zenodo.org/record/8423025) (DOI: 10.5281/zenodo.10125297).
