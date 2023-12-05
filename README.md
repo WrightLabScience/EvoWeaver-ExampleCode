@@ -20,4 +20,4 @@ Scripts in each folder contain a `basepath` and `localpath` variable if they rea
 
 Figure 1 lacks data and was produced in Biorender--as such this repository does not contain a script to reproduce it.
 
-All associated data is stored on [Zenodo](https://zenodo.org/record/8423025) (DOI: 10.5281/zenodo.10125297).
+All associated data is stored on [Zenodo](https://zenodo.org/doi/10.5281/zenodo.8423024) (DOI: 10.5281/zenodo.10266140).
