@@ -138,7 +138,7 @@ for(i in seq_along(testSets)){
   allpredictions[testSets[[i]]$test,] <- testSets[[i]]$predictions
 }
 
-breaks <- c(0,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.7,0.8,0.9,0.95)
+# breaks <- c(0,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.7,0.8,0.9,0.95)
 breaks <- c(0,0.5)
 HeatmapsList <- vector('list', length(breaks))
 for(j in seq_along(breaks)){
@@ -222,38 +222,64 @@ for(i in seq_len(nrow(ClusteringData))){
   m2 <- ClusteringData$Mod2[i]
   r <- ClusteringData$EnsemblePredictedClass[i]
   p <- ClusteringData$EnsemblePredictedProb[i]
-  if(p > cutoff)
+  if(p > 0.5)
     m[m1,m2] <- m[m2,m1] <- r
+  mprob[m1,m2] <- mprob[m2,m1] <- p
 }
 newrn <- vapply(rownames(m), \(x){
   paste(ModMap[[x]], collapse=';')
 }, character(1L))
 rownames(m) <- colnames(m) <- newrn
+rownames(mprob) <- colnames(mprob) <- newrn
 
-em <- m
-em[em > 2] <- 0L
-em[em>0] <- 1L
+#pos <- which(grepl("M0083[78]", rownames(m)))
+#Fig3Mat <- m[pos,]
+#Fig3Prob <- mprob[pos,]
+testMat <- m
+for(i in seq_len(nrow(testMat))){
+  r <- rep(0, ncol(testMat))
+  r2 <- mprob[i,]
+  r2[m[i,] != 1] <- 0
+  r2[which(colnames(testMat) == rownames(testMat)[i])] <- 0
+  r2p1 <- r2p2 <- NULL
+  if(!all(r2 == 0)){
+    # get top two direct connections
+    r2p1 <- which.max(r2)
+    r2[r2p1] <- 0
+    r2p2 <- which.max(r2)
+    r[c(r2p1,r2p2)] <- 1
+  }
+  # add back in same modules
+  r[m[i,] == 2] <- 2
+  testMat[i,] <- r
+}
+em <- testMat
+em[em==2] <- 0.5
+# em[em > 2] <- 0
+# em[em==2] <- 0.25
 library(igraph)
-set.seed(106L)
 gmexp <- graph_from_adjacency_matrix(em, mode='undirected', weighted=TRUE)
+set.seed(747L)
 grps <- cluster_label_prop(gmexp)
 finalgrps <- communities(grps)
 finalgrps <- lapply(finalgrps, sort)
 finalgrps <- lapply(finalgrps, unique)
+finalgrps <- finalgrps[order(lengths(finalgrps), decreasing=TRUE)]
 
 # random group for Fig 3c
 Fig3Ex <- finalgrps[[sample(seq_along(finalgrps), 1L)]]
 
-Fig3Mat <- m[Fig3Ex, Fig3Ex]
+## Printing out all the direct connections
+Fig3Mat <- testMat[Fig3Ex, Fig3Ex]
 posOnes <- which(Fig3Mat==1, arr.ind=TRUE)
+rownames(posOnes) <- NULL
+posOnes <- cbind(rownames(Fig3Mat)[posOnes[,1]], colnames(Fig3Mat)[posOnes[,2]])
 for(i in seq_len(nrow(posOnes)))
   posOnes[i,] <- sort(posOnes[i,])
 posOnes <- unique(posOnes)
-posOnes[] <- rownames(Fig3Mat)[posOnes[]]
-rownames(posOnes) <- NULL
-posOnes
+posOnes[order(posOnes[,1], posOnes[,2]),]
 
-# Let's get a list of all the misclasses
+# Getting a list of all the misclasses
 tmp <- vapply(seq_len(nrow(allpredictions)), \(x) which.max(allpredictions[x,]), integer(1L))
 locmispreds <- which(subpreds$Category > 3 & tmp%in%c(1L,2L) & allpredictions[,1]>=0.5)
 mispreds <- cbind(subpreds[locmispreds,], Pairings[locmispreds,], rowSums(allpredictions[locmispreds,1:2]), allpredictions[locmispreds,1], allpredictions[locmispreds,2])
@@ -263,4 +289,4 @@ head(mispreds, n=15)
 mispreds <- cbind(mispreds, AllPairs[rownames(mispreds),c("Mod1Orig", "Mod2Orig")])
 mispreds$Mod1Orig <- vapply(mispreds$Mod1Orig, paste, character(1L),collapse=',')
 mispreds$Mod2Orig <- vapply(mispreds$Mod2Orig, paste, character(1L),collapse=',')
-write.csv(mispreds[seq_len(15),c(18,19,14,15,13,16,17)], file=file.path(localpath, 'Misclass_prop6.csv'))
+write.csv(mispreds[,c(19,20,14,15,13,16,17,18)], file=file.path(localpath, 'Misclass_prop6.csv'))
