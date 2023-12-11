@@ -99,15 +99,18 @@ plot_heatmap <- function(rocdata){
   ewd <- rocdata$EvoWeaver
   strd <- rocdata$STRING
   cormat <- matrix(NA, nrow=length(strd)-1, ncol=length(ewd)-1)
-  pTP <- rocdata$StringScores$ActualCat <= 2
+  pTP <- rocdata$StringScores$ActualCat <= 3
+  rocdata$EWScores[is.na(rocdata$EWScores)] <- 0L
   for(i in seq_len(nrow(cormat))){
     for(j in seq_len(ncol(cormat))){
-      cormat[i,j] <- mean(cor(rocdata$EWScores[pTP,j],
-                              rocdata$StringScores[pTP,i+2L],
-                              method = 'spearman'),
-                          cor(rocdata$EWScores[!pTP,j],
-                              rocdata$StringScores[!pTP,i+2L],
-                              method = 'spearman'))
+      cor1 <- cor(rocdata$EWScores[pTP,j],
+                  rocdata$StringScores[pTP,i+2L],
+                  method = 'spearman')
+      cor2 <- cor(rocdata$EWScores[!pTP,j],
+                  rocdata$StringScores[!pTP,i+2L],
+                  method = 'spearman')
+      cormat[i,j] <- mean(ifelse(is.na(cor1), 0, cor1),
+                          ifelse(is.na(cor2), 0, cor2))
     }
   }
   
