@@ -3,6 +3,7 @@ basepath <- './'
 localpath <- file.path(basepath, "Fig3_and_Stats")
 
 load(file.path(localpath, 'ModulePredsAllPairs.RData'))
+load(file.path(localpath, 'ModuleTreeStatistics.RData'))
 subpreds <- AllPairs[!AllPairs$HasComplex,]
 Pairings <- subpreds[,c("Mod1", "Mod2")]
 subpreds$Jaccard <- subpreds$Jaccard*subpreds$PAPV
