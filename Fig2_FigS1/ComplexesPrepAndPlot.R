@@ -16,7 +16,7 @@ toPlotEnsemble <- EnsembleComplexStatistics
 names(toPlotMain) <- c("G/L Correlation", "P/A Jaccard", "G/L Distance",
                        "P/A MI",
                        "RP ContextTree", "RP MirrorTree", "Tree Distance",
-                       "Gene Distance", "Moran's I", "Transcription MI",
+                       "Gene Distance", "Moran's I", "Orientation MI",
                        "Gene Vector", "Sequence Info")
 names(toPlotEnsemble) <- c("Logistic Regression", "Random Forest", "Neural Network")
 colnames(RawDataComplex) <- c(names(toPlotMain), 'isTP')

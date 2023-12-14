@@ -118,7 +118,7 @@ plot_heatmap <- function(rocdata){
   colnames(cormat) <- c("G/L Correlation", "P/A Jaccard", "G/L Distance",
                         "P/A MI", "RP ContextTree", "RP MirrorTree",
                         "Tree Distance", "Gene Distance", "Moran's I",
-                        "Transcription MI", "Gene Vector", "Sequence Info")
+                        "Orientation MI", "Gene Vector", "Sequence Info")
   cormat <- cormat[,c(1,3,2,4,5:7,8,10,9,12,11)]
   rownames(cormat) <- c("Gene Neighborhood", "Cooccurrence", "Gene Fusion",
                         "Experimental Data", "Coexpression Data",

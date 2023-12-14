@@ -127,7 +127,7 @@ layout(matrix(c(rep(0,3),rep(0,5),
   gene2 <- 'ST6GAL1'
   ttal <- 0.75*arrowlen
   hahgt <- arrowhgt / 2
-  text(x=dirpos+ac1+1.1*arrowlen, y=bh-0.5, labels='Transcriptional Direction',
+  text(x=dirpos+ac1+1.1*arrowlen, y=bh-0.5, labels='Gene Orientation',
        cex=legendcex, adj=c(0,0.5))
   text(x=dirpos+ac1+arrowlen, y=bh+yoffset-1.525*arrowhgt,
        labels='Same', cex=legendcex, adj=c(0.5,0.5), col='black')
@@ -405,7 +405,7 @@ layout(matrix(c(rep(0,3),rep(0,5),
   require(sm)
   labs <- c("G/L Correlation", "G/L Distance", "P/A Jaccard", "P/A MI",
             "RP ContextTree", "RP MirrorTree", "Tree Distance",
-            "Gene Distance", "Transcription MI", "Moran's I",
+            "Gene Distance", "Orientation MI", "Moran's I",
             "Sequence Info", "Gene NV")
   layout(matrix(c(0,1), nrow=1),
          widths=c(0.2,1), heights=0.9)

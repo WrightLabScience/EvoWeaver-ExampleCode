@@ -10,7 +10,7 @@ names(BlockStatistics) <- c("CorrGL", "Jaccard", "GainLoss", "PAMI",
 names(BlockStatistics) <- c("G/L Correlation", "P/A Jaccard", "G/L Distance",
                             "P/A MI",
                        "RP ContextTree", "RP MirrorTree", "Tree Distance",
-                       "Gene Distance", "Moran's I", "Transcription MI",
+                       "Gene Distance", "Moran's I", "Orientation MI",
                        "Gene Vector", "Sequence Info")
 names(EnsembleBlockStatistics) <- c("Logistic Regression", "Random Forest", "Neural Network")
 colnames(RawScores)[seq_along(BlockStatistics)] <- names(BlockStatistics)

@@ -114,7 +114,7 @@ rownames(allconf) <- colnames(subpreds)[1:12]
 rownames(allconf) <- c("G/L Correlation", "P/A Jaccard",
                        "G/L Distance", "P/A MI",
                         "RP ContextTree", "RP MirrorTree", "Tree Distance",
-                        "Gene Distance", "Moran's I", "Transcription MI",
+                        "Gene Distance", "Moran's I", "Orientation MI",
                         "Gene Vector", "Sequence Info")
 layout(matrix(c(0,1), nrow=1), widths=c(0.15,1))
 w <- 0.4
