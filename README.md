@@ -21,3 +21,21 @@ Scripts in each folder contain a `basepath` and `localpath` variable if they rea
 Figure 1 lacks data and was produced in Biorender--as such this repository does not contain a script to reproduce it.
 
 All associated data is stored on [Zenodo](https://zenodo.org/doi/10.5281/zenodo.8423024) (DOI: 10.5281/zenodo.10266140).
+
+Algorithms sometimes have different names in internal data than they do in the journal article. This is due to difficulties with special characters, a desire to keep function names concise, and other reason. The below table lists the internal and published names:
+
+| Name in Publication | Name in Datafile | Description |
+| :----: | :----: | :----: |
+| G/L Correlation | CorrGL  | Correlation of gain/loss events |
+| G/L Distance | GainLoss | Distance between gain/loss events |
+| P/A Jaccard | Jaccard | Jaccard index of presence/absence profiles |
+| P/A MI | PAMI | Bidirectional mutual information of presence/absence profiles |
+| RP ContextTree | RPCT | ContextTree using cophenetic distance randomly projection |
+| RP MirrorTree | RPMT | MirrorTree using cophenetic distance with random projection |
+| Tree Distance | TreeDistance | Normalized Robinson-Foulds distance |
+| Gene Distance | Coloc | Number of coding regions separating genes |
+| Moran's I | ColocMoran | Moran's I applied to gene distance |
+| Orientation MI | TranscripMI | Bidirectional mutual information of gene orientation |
+| Gene Vector | NVDT | Correlation of Gene Natural Vectors in amino acid space |
+| Sequence Info | SequenceMI | Mutual information of sites in concatenated sequence alignment |
+
