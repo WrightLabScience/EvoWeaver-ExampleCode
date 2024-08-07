@@ -257,4 +257,4 @@ Miscellaneous data used for Supplemental Tables or other analyses.
 
 ## OtherDataGeneration
 
-Most of the files in `Data` are datafiles used to generate the final figures. Creating these datafiles is relatively intensive and not easily replicable. Scripts used to generate these files are contained in `OtherGeneration`, though most of these were performed using a distributed compute cluster. Additional larger datafiles are stored on Zenodo (LINK).
+Most of the files in `Data` are datafiles used to generate the final figures. Creating these datafiles is relatively intensive and not easily replicable. Scripts used to generate these files are contained in `OtherGeneration`, though most of these were performed using a distributed compute cluster. Additional larger datafiles are stored on Zenodo (DOI: 10.5281/zenodo.13255153).
