@@ -55,6 +55,7 @@ Each of these folders contains scripts to generate the figures appearing in the 
 - Fig. 3: panels (c,d) were created in Biorender, plus legends for (a,b) and the overall arrangement of the figure.
 - Fig. 5: panel (a) was created in Biorender, plus legends for (b) and the overall arrangement of the figure.
 
+<!----><a name="figure_2"></a>
 ### Figure2
 
 `GenerateDataAndFig_Fig2.R` generates the following:
@@ -70,6 +71,7 @@ Each of these folders contains scripts to generate the figures appearing in the 
 **Figures:**
 - `OutputFigures/MainFigures/2_FigModule.pdf`: Figure 2 from the manuscript.
 
+<!----><a name="figure_3"></a>
 ### Figure3
 
 `GenerateDataAndFig_Fig3.R` generates the following:
@@ -96,6 +98,7 @@ Each of these folders contains scripts to generate the figures appearing in the 
 - `HeatmapsList`: List containing confusion matrices at 0% and 50% confidence. This matrix contains raw counts--the heatmaps shown in the manuscript are normalized by dividing each row by its row sum.
 - `Fig5Row`: row of `AllPairs`/`subpreds`/`Pairings`/`allpredictions` used in Figure 5.
 
+<!----><a name="figure_4"></a>
 ### Figure4
 
 `GenerateDataAndFig_Fig4.R` generates the following:
@@ -104,6 +107,7 @@ Each of these folders contains scripts to generate the figures appearing in the 
 - `OutputFigures/MainFigures/4_FigStringEW.pdf`: Figure 4 from the manuscript.
 - `OutputFigures/SupplFigures/StringComparisonExtended.pdf`: Supplemental figure containing more information on the STRING vs. EvoWeaver benchmark.
 
+<!----><a name="figure_5"></a>
 ### Figure5
 
 `GenerateDataAndFig_Fig5.R` generates the following:
@@ -123,6 +127,7 @@ This plot depends on `Data/OtherData/B3GNT5_ST6GAL1_plottingdata.RData`, which i
 - `RPCVecs`: unnormalized RP-reduced cophenetic vectors for each gene group
 - `ofile`: `phylo` object containing only the organisms that have both genes on the same chromosome (used for plotting gene organization data)
 
+<!----><a name="figure_6"></a>
 ### Figure6
 
 `GenerateDataAndFig_Fig6.R` generates the following:
@@ -130,11 +135,12 @@ This plot depends on `Data/OtherData/B3GNT5_ST6GAL1_plottingdata.RData`, which i
 **Figures:**
 - `OutputFigures/MainFigures/6_FigCaseStudy.pdf`: Figure 6 from the manuscript.
 
-
+<!----><a name="figure_suppl"></a>
 ## SupplementalFigures Folders
 
 Each of these folders generates at least one component of a supplemental figure.
 
+<!----><a name="figure_scomp"></a>
 ### ComplexesWithValidation
 
 This folder tests the performance of EvoWeaver on the KEGG Complexes benchmark using gene pair holdouts, then retests using gene holdouts and complex holdouts. The script `GenrateDataAndFigures_Complexes.R` generates the following:
@@ -154,7 +160,7 @@ This folder tests the performance of EvoWeaver on the KEGG Complexes benchmark u
 - `OutputFigures/SupplFigures/SXX_FigComplex.pdf`: Results of EvoWeaver on the Complexes benchmark.
 - `OutputFigures/SupplFigures/SXX_ComplexesValidation.pdf`: Comparison of additional ensemble methods, gene group holdouts, and complex holdouts on the Complexes benchmark.
 
-
+<!----><a name="figure_smod"></a>
 ### ModulesValidation
 
 This folder performs a similar analysis to `ComplexesWithValidation`. The script `GenerateDataAndFig_ModulesValidation.R` generates the following:
@@ -169,6 +175,7 @@ This folder performs a similar analysis to `ComplexesWithValidation`. The script
 - `OutputFigures/SupplFigures/50ConfModuleHoldoutHeatmap.png`: Multiclass confusion matrix (as in Fig. 3(a)) at a cutoff of 50% confidence using module holdouts.
 - `OutputFigures/SupplFigures/0ConfModuleHoldoutHeatmap.png`: Multiclass confusion matrix (as in Fig. 3(a)) at a cutoff of 0% confidence using module holdouts.
 
+<!----><a name="figure_scorum"></a>
 ### CORUM
 
 This folder analyzes EvoWeaver's predictions on the CORUM dataset. It also benchmarks transfer learning by comparing models trained on KEGG and tested on CORUM, and vice versa. The script `GenerateDataAndFig_CORUM.R` generates the following:
@@ -176,6 +183,7 @@ This folder analyzes EvoWeaver's predictions on the CORUM dataset. It also bench
 **Figures:**
 - `OutputFigures/SupplFigures/SXX_CORUMrocs.pdf`: ROCs of EvoWeaver on KEGG, plus transfer learning results of ensemble methods between KEGG and CORUM.
 
+<!----><a name="figure_shom"></a>
 ### HomologyTest
 
 This folder analyzes the extent to which different gene groups have a high degree of homology. Ideally, sequences in different gene groups will not have high homology to minimize leakage introduced by comparing two purportedly different groups that actually contain identical sequences. The file `GenerateDataAndFig_Homology.R` generates the following:
@@ -192,6 +200,7 @@ Additionally, if `REGENERATE_PIDS` is set to `TRUE` in `GenerateDataAndFig_Homol
 
 Note that this is set to `FALSE` by default, since this calculation is relatively slow.
 
+<!----><a name="figure_smis"></a>
 ### Misclasses
 
 This folder generates a plot of the top 100 misclassifications wherein a pair that was "Same Pathway" was classified as "Direct Connection" by EvoWeaver's ensemble predictor. This analysis relies on `Data/Multiclass/Top100Misclasses.xlsx`, which was created manually by examining KEGG pathways for each pair. The script `GenerateDataAndFig_Misclasses.R` generates the following:
@@ -199,6 +208,7 @@ This folder generates a plot of the top 100 misclassifications wherein a pair th
 **Figures:**
 - `OutputFigures/SupplFigures/SXX_Misclasses.pdf`: Ensemble confidence vs. degrees of separation in KEGG for top 100 pairs classified as "Direct Connection" despite actually being "Same Pathway" in KEGG.
 
+<!----><a name="figure_sppex"></a>
 ### PPAlgorithmsExample
 
 This folder generates example scenarios for the Phylogenetic Profiling algorithms, as well as their expected behavior. `GenerateDataAndFig_PP.R` generates the following:
@@ -206,6 +216,7 @@ This folder generates example scenarios for the Phylogenetic Profiling algorithm
 **Figures:**
 - `OutputFigures/SupplFigures/SXX_ExampleTreesPP.pdf`: example scenarios, expected behavior, and actual result for the Phylogenetic Profiling algorithms.
 
+<!----><a name="figure_sruntime"></a>
 ### Runtime
 
 This folder generates runtime data for each algorithm in EvoWeaver. The file `GenerateDataAndFig_Runtime.R` generates the following:
@@ -218,6 +229,7 @@ It is possible to regenerate the benchmark data by setting `REGENERATE_RUNTIMES`
 **Data:**
 - `Data/SupplementalData/Runtime/EvoWeaver_RuntimeBenchmark.RData`: Runtime (in seconds) for each algorithm for different input sizes.
 
+<!----><a name="figure_sreftree"></a>
 ### ReferenceTreeRobustness
 
 This folder empirically measures the impact of an improved reference tree on EvoWeaver's results. The datafiles for this analysis are generated in `Figure2`, `ModulesValidation`, and `ComplexesWithValidation`. The file `GenerateDataAndFig_ReferenceTree.R` generates the following:
@@ -241,15 +253,15 @@ This folder empirically measures the impact of an improved reference tree on Evo
 
 ### Modules
 
-Data relating to the Modules benchmark. See `Figure2` and `ModulesValidation`.
+Data relating to the Modules benchmark. See [`Figure2`](#figure_2) and [`ModulesValidation`](#figure_smod).
 
 ### Multiclass
 
-Data relating to the Multiclass benchmark. See `Figure3` and `ModulesValidation`.
+Data relating to the Multiclass benchmark. See [`Figure3`](#figure_3) and [`ModulesValidation`](#figure_smod).
 
 ### SupplementalData
 
-Data relating to supplemental figures. See "`SupplementalFigures` Folders" for more information.
+Data relating to supplemental figures. See ["`SupplementalFigures` Folders"](#figure_suppl) for more information.
 
 ### OtherData
 
