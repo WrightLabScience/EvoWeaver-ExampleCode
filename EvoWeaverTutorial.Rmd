@@ -1,0 +1,404 @@
+---
+title: "EvoWeaverTutorial"
+author: "Aidan"
+date: "2024-06-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Installation
+
+EvoWeaver is provided as part of the `SynExtend` package for R, which is available via Bioconductor. To install, use the following commands from your R session:
+
+```{r, eval=FALSE}
+## Install BiocManager if not already installed
+if(!require("BiocManager", quietly=TRUE))
+  install.packages("BiocManager")
+
+## Install SynExtend from development version
+BiocManager::install(version="devel")
+BiocManager::install("SynExtend", version="devel")
+```
+
+The development version contains the most recent fixes and updates to EvoWeaver.
+
+## Initialization
+
+EvoWeaver objects are initialized with the function `EvoWeaver(input)`. Two types of input are supported:
+
+1. A list of character vectors
+2. A list of dendrograms
+
+In both cases, each element of the list denotes a distinct gene group. When input list contains values of type `character`, an entry of `'x'` means genome `x` contains the corresponding gene. When input list contains values of type `dendrogram`, the labels of the dendrogram are used to determine presence/absence. For example:
+
+```{r}
+library(SynExtend)
+
+## Build an EvoWeaver object from characters
+cat("EvoWeaver object from characters:\n")
+example_list_char <- list(
+  group1 = c("A", "B", "C", "E"),
+  group2 = c("B", "C", "E"),
+  group3 = c("A", "C", "D")
+)
+ew_char <- EvoWeaver(example_list_char)
+ew_char
+
+set.seed(123L)
+cat("EvoWeaver object from dendrograms:\n")
+example_list_dend <- lapply(example_list_char,
+                \(x){
+                    l <- length(x)
+                    d <- as.dist(matrix(runif(l * l), nrow=l))
+                    attr(d, "Labels") <- x
+                    DECIPHER::TreeLine(myDistMatrix=d, method="NJ", verbose=FALSE)
+                  })
+ew_dend <- EvoWeaver(example_list_dend)
+ew_dend
+```
+You'll note that some errors are thrown. This is because EvoWeaver supports four different categories of coevolutionary methods, and some categories require certains types of input to function correctly. These warnings notify the user on what categories of algorithms are supported for the provided input.
+
+If you don't want to see these warnings, you can simply provide the argument `NoWarn=TRUE`:
+
+```{r}
+ew_char <- EvoWeaver(example_list_char, NoWarn=TRUE)
+ew_char
+```
+
+If you have a species tree, you can provide it with the `MySpeciesTree` argument. This tree must be of type `dendrogram` and be bifurcating. You can also infer a species tree given dendrograms using the `SuperTree` method in SynExtend.
+
+```{r}
+ex_species_tree <- SuperTree(example_list_dend)
+ew_dend <- EvoWeaver(example_list_dend,
+                     MySpeciesTree=ex_species_tree,
+                     NoWarn=TRUE)
+ew_dend
+```
+
+We can use an EvoWeaver object to make predictions with the `predict` function:
+
+```{r, eval=FALSE}
+## This isn't run
+predict(ew_dend, Method="MY METHOD HERE")
+```
+
+First, though, we have to specify a method in the `Method` argument. This can be any of the algorithms available in EvoWeaver, detailed in the next section.
+
+## Algorithms available in EvoWeaver
+
+EvoWeaver supports four categories of algorithms: Phylogenetic Profiling, Phylogenetic Structure, Gene Organization, and Sequence-Level. Each are discussed below.
+
+### Phylogenetic Profiling
+
+Phylogenetic profiling algorithms analyze patterns in gene presence/absence to identify gene groups involved in similar function.
+
+**The minimal input to phylogenetic profiling methods is a list of character vectors and a species tree.**
+
+The algorithms used in the EvoWeaver manuscript are:
+- `PAJaccard`: Jaccard similarity of presence/absence profiles, collapsing identical clades
+- `PAOverlap`: Length of time in the ancestry both genes are present
+- `GLMI`: Mutual information of ancestral gain/loss events
+- `GLDistance`: Time for a gain or loss in one gene group to be followed by a gain or loss in the other.
+
+Let's build an example case for these algorithms. We'll start by putting together a small species tree:
+
+```{r}
+set.seed(777L)
+n_taxa <- 32
+d <- dist(seq_len(n_taxa))
+d[] <- runif(length(d))
+attr(d, "Labels") <- as.character(seq_len(n_taxa))
+tree <- TreeLine(myDistMatrix=d, method='NJ')
+labs <- labels(tree)
+plot(tree)
+```
+
+Next, we'll create a few artificial gene groups corresponding to different scenarios we might encounter in real data:
+```{r}
+set.seed(523L)
+## The labels of the tree are 1:n_taxa
+gene_groups <- list(
+  A=seq(1,n_taxa,by=2),
+  B=seq(2,n_taxa,by=2),
+  C=seq(1,n_taxa/2),
+  D=seq(2,n_taxa/2+1),
+  E=sample(n_taxa, 6),
+  F=sample(n_taxa, 14)
+)
+gene_groups <- lapply(gene_groups, \(x) labs[x])
+
+## Function to plot the presence/absence pattern as well as gain/loss events
+## Note that this uses some internal functionality
+plot_single_pa <- function(tree, vec, col_present, titlestr){
+  y <- .Call("initCDend", tree, PACKAGE="SynExtend")
+  on.exit(rm(y))
+  pa <- .Call("calcGainLoss", y, vec, FALSE, PACKAGE="SynExtend") + 1L
+  ctr <- 1L
+  cols <- c('grey', col_present)
+  pdend <- dendrapply(tree, \(x){
+    attr(x, "nodePar") <- list(col=cols[pa[ctr]], pch=20)
+    if(!is.leaf(x)){
+      curcol <- attr(x,"nodePar")$col
+      rcol <- attr(x[[1]],"nodePar")$col
+      lcol <- attr(x[[2]],"nodePar")$col
+
+      if(rcol != curcol){
+        attr(x[[1]],"edgePar")$col <- ifelse(rcol=='grey', 'black', rcol)
+      }
+      if(lcol != curcol){
+        attr(x[[2]],"edgePar")$col <- ifelse(lcol=='grey', 'black', lcol)
+      }
+    }
+    ctr <<- ctr + 1L
+    x
+  }, how='post.order')
+  plot(pdend, main=titlestr, cex.main=0.75, yaxt='n', leaflab='none')
+}
+
+## plotting all the gene groups
+prev_par <- par(c("mai", "mgp", "oma"))
+par(mai=c(0,0,0,0)+0.1, mgp=c(0,0,0), oma=c(2,3,2,0))
+cols <- palette.colors(length(gene_groups)+1L)[-1]
+layout(matrix(seq_along(gene_groups), nrow=2))
+for(i in seq_along(gene_groups)){
+  plot_single_pa(tree, gene_groups[[i]], cols[i],
+                 paste0("Group ", names(gene_groups)[i]))
+}
+layout(1L)
+par(prev_par)
+```
+
+Each plot shows the species tree, with nodes colored according to presence/absence. Leaf nodes are colored if the gene is present in that taxa, interior nodes are colored if the gene is inferred to be present at that point of the ancestry, and internal branches are colored when a gene is inferred to be gained along that branch.
+
+Groups A and B are mutually exclusive--everywhere gene A appears, B does not (and vice-versa). Groups C and D are both present in roughly half the organisms, and overlap in almost all their membership. Groups E and F are both randomly distributed, with E being only present in a small number of taxa and F being present in more.
+
+We can analyze these scenarios using EvoWeaver.
+
+```{r}
+## start by initializing the object
+ew <- EvoWeaver(gene_groups, MySpeciesTree=tree, NoWarn=TRUE)
+
+methods_to_use <- c("PAJaccard",
+                    "PAOverlap",
+                    "GLMI",
+                    "GLDistance")
+
+## Set Verbose=TRUE for progress bars
+predictions <- predict(ew, Method=methods_to_use, Verbose=FALSE)
+
+## Just rounding off predictions for ease of visualization
+predictions[,-(1:2)] <- round(predictions[,-(1:2)], 2)
+predictions[c(2,13,20),]
+```
+
+You can see that A-B tends to report negative scores due to their mutual exclusivity, CD tends to report positive scores due to their high degree of overlap, and EF reports a low positive score due to a small degree of similarity.
+
+If we're only interested in a subset of the predictions, we can set the `Subset` argument. We'll also use the keyword  `Method="PhylogeneticProfiling"`, which runs the four Phylogenetic Profiling algorithms used in the EvoWeaver manuscript.
+
+```{r}
+ss <- data.frame(Gene1=c("A","C","E"), Gene2=c("B","D","F"))
+ss
+
+## Set Verbose=TRUE for progress bars
+## Predicting for just the pairs we care about
+predictions <- predict(ew, Method="PhylogeneticProfiling", Verbose=FALSE, Subset=ss)
+
+## Just rounding off predictions for ease of visualization
+predictions[,-(1:2)] <- round(predictions[,-(1:2)], 2)
+predictions
+```
+
+### Phylogenetic Structure Algorithms
+
+Phylogenetic structure algorithms analyze the structure of the gene trees to identify evidence of shared function.
+
+**The minimal input for Phylogenetic Structure algorithms is a list of dendrograms. Some algorithms require a species tree.**
+
+The algorithms used in the EvoWeaver manuscript are:
+- `TreeDistance`: Normalized Robinson-Foulds distance of gene trees
+- `RPMirrorTree`: correlation of cophenetic distances following random projection
+- `RPContextTree`: RPMirrorTree with a species-tree correction and a presence/absence correction.
+
+We'll continue our example from before.
+
+```{r}
+set.seed(871L)
+tree_groups <- lapply(gene_groups,
+              \(x){
+                l <- length(x)
+                d <- as.dist(matrix(runif(l*l), nrow=l))
+                names(d) <- x
+                DECIPHER::TreeLine(myDistMatrix=d, method="NJ", verbose=FALSE)
+              })
+
+prev_par <- par(c("mai", "mgp", "oma"))
+par(mai=c(0,0,0,0)+0.2, mgp=c(0,0,0), oma=c(2,3,2,0))
+layout(matrix(seq_along(gene_groups), nrow=2))
+for(i in seq_along(gene_groups)){
+  plot(tree_groups[[i]], main=paste0("Group ", names(tree_groups)[i]), yaxt='n')
+}
+layout(1L)
+par(prev_par)
+```
+
+Now we can build our EvoWeaver object and analyze these pairs.
+
+```{r}
+set.seed(423L)
+tree <- SuperTree(tree_groups)
+ew <- EvoWeaver(tree_groups, MySpeciesTree=tree, NoWarn=TRUE)
+
+# Method="PhylogeneticStructure" also accomplishes this
+methods_to_use <- c("TreeDistance",
+                    "RPMirrorTree",
+                    "RPContextTree")
+
+ss <- data.frame(Gene1=c("A","C","E"), Gene2=c("B","D","F"))
+preds <- predict(ew, Method=methods_to_use, Verbose=FALSE, Subset=ss)
+
+## view results
+preds
+```
+`TreeDistance` first prunes the trees to the leaves they have in common. RF distance of AB is `NA` because they share no leaves.
+
+### Gene Organization
+
+Gene Organization algorithms analyze how genes are located relative to each other in the genome.
+
+**The minimum input for Gene Organization algorithms is correctly formatted labels (see below). Some algorithms require a species tree.**
+
+The algorithms used in the EvoWeaver manuscript are:
+- `GeneDistance`: Distance between genes on the same chromosome/contig in the genome
+- `OrientationMI`: Mutual information of transcriptional direction between genes colocated on the same chromosome/contig
+- `MoransI`: Conservation of relative gene distances across the phylogeny.
+
+EvoWeaver uses a specific code to denote location in the genome. Each label is expected to be of the form `[GENOME]_[CONTIG]_[DIRECTION]_[INDEX]`. Here `GENOME` and `CONTIG` denote the genome and chromosome/contig the gene appears on (respectively), and can be characters that do not contain an underscore. `DIRECTION` denotes the direction of transcription, and must be either 0 or 1. Either number can denote the forward direction as long as it's consistent (we'll assume 1 is the forward direction here). `INDEX` denotes the index of the gene in the genome--`1` for the first gene, `100` for the 100th gene, etc.
+
+For example, `human_X_1_30` denotes the 30th gene on the human X chromosome, which is transcribed in the forward direction. `rat_2_0_1032` would denote the 1032 gene on the second rat chromosome, which is transcribed in the reverse direction. Let's look at another example.
+
+```{r}
+## initialize four gene groups with 5 organisms
+set.seed(419L)
+orgs <- c("alpha", "beta", "gamma", "epsilon", "omega")
+gene_groups <- list(
+  A=paste(orgs, 1, rep(c(0,1), times=c(1,4)), 1:5, sep="_"),
+  B=paste(orgs, 1, rep(c(0,1), times=c(4,1)), 2:6, sep="_"),
+  C=paste(orgs, 2, 1, 3:7, sep="_"),
+  D=paste(orgs, 1, 0, 3:7*100, sep="_"),
+  E=paste(orgs, rep(1:2,length.out=5), sample(0:1, 5, r=T), sample(100,5), sep="_")
+)
+
+## let's also build a species tree
+norg <- length(orgs)
+d <- as.dist(matrix(runif(norg*norg), nrow=norg))
+attr(d, "Labels") <- orgs
+tree <- DECIPHER::TreeLine(myDistMatrix=d, method="NJ", verbose=FALSE)
+
+plot(tree)
+gene_groups
+```
+
+Here we have four gene groups, all of which have 5 genes that appear in the same 5 genomes. Groups A and B are all located adjacent to each other on the chromosome in their respective genomes, but are always transcribed in opposite direction. Groups B and C are all located on different chromosomes. Groups A and D are located on the same chromosomes, but not close together. Group E appears on random chromosomes, directions, and locations. Let's examine how they each score.
+
+```{r}
+set.seed(102L)
+ew <- EvoWeaver(gene_groups, MySpeciesTree=tree, NoWarn=TRUE)
+
+methods_to_use <- c("GeneDistance",
+                    "OrientationMI",
+                    "MoransI")
+
+## We can also specify a single group in Subset to get all pairs with group
+## this returns all pairs with "A"
+preds <- predict(ew, Method=methods_to_use, Verbose=FALSE, Subset="A")
+
+preds
+```
+Notice that A-B returns a very high score because the genes are always adjacent. MoransI measures how the distance between genes is conserved across phylogenies. OrientationMI is the mutual information of transcriptional direction, which results in 0 values when one set is always 0 or always 1.
+
+
+### Sequence-Level Methods
+
+Sequence-Level methods analyze the sequencing data for each gene.
+
+**The minimal input for Sequence-Level Methods is dendrograms where each leaf contains sequencing data in the `state` attribute (see below).**
+
+The algorithms used in the EvoWeaver manuscript are:
+- `GeneVector`: Correlation of sequence composition
+- `SequenceInfo`: Mutual information of sites a concatenated alignment
+
+EvoWeaver expects to find sequencing data in the `state` attribute of the input dendrograms. This information is easy to add using `dendrapply`. Let's look at an example.
+
+```{r}
+## these are just random letters
+ss1 <- c(A="ARDCQ",
+         B="ARCCQ",
+         C="ERDCQ",
+         D="AMDCA")
+ss2 <- c(A="ARRRQ",
+         B="TRRRS",
+         C="ERRRQ",
+         D="YRRRY")
+ss3 <- c(A="PSTWY",
+         B="PSTWV",
+         C="CSTCV",
+         D="CSTEV")
+
+ss1 <- AlignSeqs(AAStringSet(ss1), verbose=FALSE)
+ss2 <- AlignSeqs(AAStringSet(ss2), verbose=FALSE)
+ss3 <- AlignSeqs(AAStringSet(ss3), verbose=FALSE)
+alignments <- list(ss1, ss2, ss3)
+
+## three random trees
+set.seed(555L)
+gene_trees <- lapply(1:3,
+              \(x){
+                d <- as.dist(matrix(runif(16), nrow=4))
+                attr(d, "Labels") <- LETTERS[1:4]
+                TreeLine(myDistMatrix=d, method="NJ", verbose=FALSE)
+              })
+
+names(gene_trees) <- c("G1", "G2", "G3")
+
+## Now we have dendrograms in gene_trees,
+## and a list of alignments in alignments
+
+## next we add them to their respective trees
+for(i in seq_along(gene_trees)){
+  tree <- gene_trees[[i]]
+  seqs <- as.character(alignments[[i]])
+  tree <- dendrapply(tree, \(x){
+    if(is.leaf(x))
+      attr(x, 'state') <- seqs[attr(x,'label')]
+    x
+  })
+  gene_trees[[i]] <- tree
+}
+
+## checking that they're there
+rapply(gene_trees[[1]], \(x) attr(x, 'state'))
+as.character(alignments[[1]][labels(gene_trees[[1]])])
+```
+
+Now to run the prediction:
+```{r}
+# Species tree isn't needed
+ew <- EvoWeaver(gene_trees, NoWarn=TRUE)
+methods_to_use <- c("GeneVector",
+                    "SequenceInfo")
+
+ss <- data.frame(Gene1=c("G1", "G1", "G2"), Gene2=c("G2", "G3", "G3"))
+p <- predict(ew, Method=methods_to_use, Verbose=FALSE, Subset=ss)
+
+## it's also possible to convert EvoWeb objects to matrices
+## just like you would a dist object
+preds <- vapply(p, \(x){
+  m <- as.matrix(x)
+  m[upper.tri(m)]
+}, numeric(3L))
+rownames(preds) <- c("G1-G2", "G1-G3", "G2-G3")
+preds
+```
