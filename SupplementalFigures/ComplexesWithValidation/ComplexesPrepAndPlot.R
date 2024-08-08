@@ -21,6 +21,6 @@ colnames(RawDataComplex) <- c(names(toPlotMain), 'isTP')
 # Reordering all the algorithms by AUROC
 
 rnames <- names(toPlotMain)
-toPlotEnsemble <- toPlotEnsemble[c(2,3,1)]
+toPlotEnsemble <- toPlotEnsemble[c(2,1,3)]
 
 plot_fig_2x2(toPlotMain, toPlotEnsemble, RawDataComplex, outfile, isComplex=TRUE)

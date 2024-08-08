@@ -179,7 +179,8 @@ plot_heatmap <- function(rocdata){
 
   #title(main=substitute(bold("Correlation of Scores ("~rho~")")), line=2, adj=0.5)
   title(xlab="STRING Evidence Streams", mgp=c(2.25,1,0), cex.lab=0.75, col.lab="#2B6DA8")
-  title(ylab="EvoWeaver Component Predictors", mgp=c(2.75,1,0), cex.lab=0.75, col.lab="#45A649")
+  title(ylab="EvoWeaver Component Predictors", mgp=c(2.85,1,0),
+        cex.lab=0.75, col.lab="#45A649", adj=0.85)
 
   legxs <- 1.065
   legys <- 0.34
@@ -236,7 +237,7 @@ plot_newFig <- function(rocdata, sr){
           #main="Performance Predicting KEGG Pathways",
           space=spacevec,
           col=c(tc0, rep(tc1, 7), tc2), add=TRUE)
-  title(ylab="Area Under ROC Curve (AUROC)",
+  title(ylab="Area Under the ROC Curve (AUROC)",
         mgp=c(1.5,1,0), cex.lab=0.75)
   axis(side=2, at=seq(0,1,0.1), mgp=c(0,0.5,0), cex.axis=0.75)
 

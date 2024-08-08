@@ -7,7 +7,7 @@ BuildCaseStudyForInputNetworkNoWeight <- function(AllPairs, subpreds, allpredict
                                           highlight_labels=NULL, wrong_lty=2,
                                           LDIST_MULT=2.45,
                                           TITLE_OFFSET=1.0, MARGIN_OFFSET=0,
-                                          GRAYLINE_VALS=c(-2.25,20.5), VERTNAMESCENTER=FALSE){
+                                          GRAYLINE_VALS=c(-2.25,18.75), VERTNAMESCENTER=FALSE){
   ## This function assumes that a dev is already open with the correct layout()
   ## it will neither open nor close a dev, we're just writing plots to the screen
   ## Inputs:

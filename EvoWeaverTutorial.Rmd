@@ -1,6 +1,6 @@
 ---
 title: "EvoWeaverTutorial"
-author: "Aidan"
+author: "Aidan Lakshman"
 date: "2024-06-27"
 output: html_document
 ---
@@ -402,3 +402,95 @@ preds <- vapply(p, \(x){
 rownames(preds) <- c("G1-G2", "G1-G3", "G2-G3")
 preds
 ```
+
+## Ensemble Methods
+
+`EvoWeaver` supports prediction using ensemble methods. You can provide your own model, or use pretrained ones used in the `EvoWeaver` manuscript. With pretrained models, `EvoWeaver` automatically detects the type of input data you have and uses an appropriate model. For example, if you can only run Phylogenetic Profiling and Phylogenetic Structure algorithms, it'll use a model that was only trained with these algorithms.
+
+Let's see what that looks like from an example on three gene groups
+
+```{r}
+set.seed(912L)
+gene_names <- c("A","B","C","D")
+
+gene_pa <- lapply(seq_len(3L), \(x){
+  vapply(gene_names, \(x) paste(x, '1', sample(0:1, 1), sample(20, 1), sep='_'), character(1L))
+})
+
+
+## 3 random sequence sets
+seqsets <- list(
+  c("ARDCQ","ARCCQ","ERDCQ","AMDCA"),
+  c("ARRRQ","TRRRS","ERRRQ","YRRRY"),
+  c("PSTWY","PSTWV","CSTCV","CSTEV")
+)
+for(i in seq_along(seqsets)){
+  names(seqsets[[i]]) <- gene_pa[[i]]
+}
+seqsets_char <- seqsets
+seqsets <- lapply(seqsets, \(x) AlignSeqs(AAStringSet(x), verbose=FALSE))
+
+trees <- vector("list", length(seqsets))
+for(i in seq_along(trees)){
+  cat("Tree",i,"of",length(trees), '\n')
+  trees[[i]] <- TreeLine(seqsets[[i]], method="MP", verbose=FALSE)
+}
+
+## Add sequence info to the leaves of the trees
+for(i in seq_along(trees)){
+  trees[[i]] <- dendrapply(trees[[i]], \(x){
+    if(is.leaf(x)){
+      attr(x, 'state') <- seqsets_char[[i]][attr(x, 'label')]
+    }
+    x
+  }, how="post.order")
+}
+
+
+names(trees) <- c("G1", "G2", "G3")
+
+## let's make a reference tree by concatenating the alignments
+concat_char <- do.call(rbind, seqsets_char)
+concat_char <- apply(concat_char, 2, paste, collapse='')
+concat_seqs <- AlignSeqs(AAStringSet(concat_char), verbose=FALSE)
+names(concat_seqs) <- c("A","B","C","D")
+ReferenceTree <- TreeLine(concat_seqs, method="MP", verbose=FALSE)
+```
+
+Here, we've set up a set of three trees that have all the input we need for all possible algorithms. First, we can make an ensemble prediction using all algorithms:
+```{r}
+ew <- EvoWeaver(trees, MySpeciesTree=ReferenceTree)
+res <- predict(ew, Verbose=FALSE)
+res
+```
+
+This example is mostly for illustration--note that all the phylogenetic profiling algorithms are 0 or 1 because all the genes are present in all taxa.
+
+Now, what if we only had presence/absence and location data, and no trees aside from the reference tree?
+```{r}
+pp_go_only <- lapply(trees, labels)
+ew_ppgo <- EvoWeaver(pp_go_only, MySpeciesTree=ReferenceTree)
+res <- predict(ew_ppgo, Verbose=FALSE)
+res
+```
+
+This will work for nearly every combination of algorithm groups. Note that the minimal input required is the algorithms from the `PhylogeneticProfiling` category.
+
+We can also predict with different models. Before we used the default internal model, which is `"KEGG"`. This model is trained on the KEGG MODULES benchmark. However, we can also predict using a model trained on the CORUM dataset.
+
+```{r}
+ShouldPrint <- FALSE
+res1 <- predict(ew, Verbose=ShouldPrint)
+res2 <- predict(ew, Verbose=ShouldPrint, PretrainedModel="CORUM")
+
+cbind(KEGG=res1$Ensemble, CORUM=res2$Ensemble)
+```
+
+If you want to use your own models, there are two options. First, you can provide your own model in the `PretrainedModel` argument, and `EvoWeaver` will attempt to call `predict` using this model. Alternatively, you can run prediction with `NoPrediction=TRUE` to return values without running ensemble predictions:
+
+```{r}
+res3 <- predict(ew, Verbose=ShouldPrint, NoPrediction=TRUE)
+res3
+```
+
+Now you have a full `data.frame` object that can be used for prediction with any of your own models.

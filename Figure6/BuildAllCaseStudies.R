@@ -8,7 +8,7 @@ USE_WEIGHT <- FALSE
 outfile <- "6_FigCaseStudy.pdf"
 N_STUDIES <- 6
 N_GRAPHS <- 6
-pdf(file=file.path(figdir, "MainFigures", outfile), onefile = TRUE, height=7.5, width=6.48)
+pdf(file=file.path(figdir, "MainFigures", outfile), onefile = TRUE, height=7.5, width=6.08)
 #layout(matrix(seq_len(N_STUDIES*N_GRAPHS), byrow=TRUE, nrow=N_STUDIES))
 layout_m <- matrix(0, nrow=N_STUDIES*2, ncol=(N_GRAPHS-4L)*2+2)
 for(i in seq_len(N_STUDIES)){
@@ -18,8 +18,8 @@ for(i in seq_len(N_STUDIES)){
   layout_m[c(2*i-1,2*i), 5:6] <- (i-1)*6 + 6
 }
 #layout(layout_m, heights=rep(1,nrow(layout_m)-1, 0.01))
-#layout(layout_m, widths=c(1,1,0.8,0.8,1,1))
-layout(layout_m)
+layout(layout_m, widths=c(1,1,0.75,0.75,1,1.1))
+#layout(layout_m)
 
 if(USE_WEIGHT){
   BuildCaseStudyForInputNetwork <- BuildCaseStudyForInputNetworkWeight
@@ -268,7 +268,7 @@ reorder_all_blocks <- function(ModulesObject, neworder){
 cat("\tPlotting legend...\n")
 cols_legend <- c('#D81B60', '#E0A608', '#2B6DA8', '#45A649', 'grey40', 'black')
 ## legend for component algorithms
-LEGEND_X <- -9.00
+LEGEND_X <- -8.75
 LEGEND_Y <- -1.0
 LEGEND_CEX <- 1
 legend(x=LEGEND_X, y=LEGEND_Y, cex=LEGEND_CEX, x.intersp=c(1,0.25,0.75,-1.5),
