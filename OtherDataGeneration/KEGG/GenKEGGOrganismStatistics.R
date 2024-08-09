@@ -8,7 +8,8 @@
 ##      to genomes that were missing location data in KEGG
 
 library(xlsx)
-BaseDir <- "/Users/aidan/Nextcloud/grad_school/PapersBeingSubmitted/ProtWeaver/Reviews/Review1/ToUpload"
+BaseDir <- NULL
+if(is.null(BaseDir)) stop("Please set the base directory!")
 outfile <- file.path(BaseDir, "Data", "OtherData", "KEGGOrganismBreakdown.xlsx")
 load(file.path(BaseDir, "Data", "OtherData", "AllKEGGCDSs.RData"))
 load(file.path(BaseDir, "Data", "OtherData", "KEGGTaxonomy.RData"))

@@ -68,12 +68,12 @@ for(i in seq_along(AllCDSs)){
 	AllCDSs[[i]] <- hits
 }
 
-save(AllCDSs, file='/Users/aidan/Nextcloud/grad_school/PapersBeingSubmitted/ProtWeaver/Reviews/Review1/scripts/KEGG_KO_Analysis/AllKEGGCDSs.RData')
+save(AllCDSs, file='AllKEGGCDSs.RData')
 
-# load(file='/Users/aidan/Nextcloud/grad_school/PapersBeingSubmitted/ProtWeaver/Reviews/Review1/scripts/KEGG_KO_Analysis/AllKEGGCDSs.RData')
-KOgroup_dir <- '/Users/aidan/Nextcloud/grad_school/PapersBeingSubmitted/ProtWeaver/Reviews/Review1/scripts/KEGG_KO_Analysis/KOGroups'
-#KOgroup_dir <- '/Users/aidan/Nextcloud/grad_school/PapersBeingSubmitted/ProtWeaver/Reviews/Review1/scripts/KEGG_KO_Analysis/KOGroups_noseqs'
-outpath <- '/Users/aidan/Nextcloud/grad_school/PapersBeingSubmitted/ProtWeaver/Reviews/Review1/scripts/KEGG_KO_Analysis/KOGroupsWithIndices'
+# load(file='AllKEGGCDSs.RData')
+KOgroup_dir <- 'KOGroups'
+#KOgroup_dir <- 'KOGroups_noseqs'
+outpath <- 'KOGroupsWithIndices'
 HAS_SEQS <- TRUE
 USE_CDS_ONLY <- TRUE
 l <- list.files(KOgroup_dir)
