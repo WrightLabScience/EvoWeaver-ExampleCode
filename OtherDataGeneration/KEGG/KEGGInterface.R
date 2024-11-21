@@ -447,10 +447,10 @@ build_paths_set <- function(){
       cogpaths[[i]] <- p
 
     if (i %% 100 == 0)
-      save(cogpaths, file='/Users/aidan/Nextcloud/RStudioSync/streptomyces_data/COG_KEGG_Pathways.RData')
+      save(cogpaths, file='COG_KEGG_Pathways.RData')
   }
   cat('Done.              \n')
-  save(cogpaths, file='/Users/aidan/Nextcloud/RStudioSync/streptomyces_data/COG_KEGG_Pathways.RData')
+  save(cogpaths, file='COG_KEGG_Pathways.RData')
   return(cogpaths)
 }
 

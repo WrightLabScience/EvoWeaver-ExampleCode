@@ -5,7 +5,7 @@ FullFinalDataset <- FinalDataset
 nuctransport <- read.delim(file.path(datadir, "SupplementalData", "CORUM", 'nuclear_transport_complexes.txt'))
 cmplx_nuctransport <- nuctransport$ComplexName
 gene_names <-  unique(unlist(strsplit(nuctransport$subunits.Gene.name., ';')))
-FinalDataset <- FullFinalDataset[FullFinalDataset$ComplexName %in% gene_names,]
+FinalDataset <- FullFinalDataset[FullFinalDataset$ComplexName %in% cmplx_nuctransport,]
 tmp <- FinalDataset[,1:2]
 FinalDataset[,1] <- pmin(tmp[,1], tmp[,2])
 FinalDataset[,2] <- pmax(tmp[,1], tmp[,2])

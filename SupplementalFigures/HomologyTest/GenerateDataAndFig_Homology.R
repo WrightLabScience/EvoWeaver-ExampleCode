@@ -18,16 +18,26 @@ if(REGENERATE_PIDS){
   USE_COMPLEXES <- TRUE
   USE_CORUM <- FALSE
   source(file.path(curdir, "FindHomologyForSequences.R"))
+  source(file.path(curdir, "FindHomologyForSequencesWithBlast.R"))
 
   cat("Generating Modules pairwise PIDs...\n")
   USE_COMPLEXES <- FALSE
   USE_CORUM <- FALSE
   source(file.path(curdir, "FindHomologyForSequences.R"))
+  source(file.path(curdir, "FindHomologyForSequencesWithBlast.R"))
 
-  cat("Generating CORUM pairwise PIDs...\n")
-  USE_COMPLEXES <- FALSE
-  USE_CORUM <- TRUE
-  source(file.path(curdir, "FindHomologyForSequences.R"))
+  cat("Generating Modules pairwise PIDs for False Positives...\n")
+  USE_BLAST <- FALSE
+  source(file.path(curdir, "FindHomologyFalsePositives.R"))
+  USE_BLAST <- TRUE
+  source(file.path(curdir, "FindHomologyFalsePositives.R"))
+
+  #cat("Generating CORUM pairwise PIDs...\n")
+  #USE_COMPLEXES <- FALSE
+  #USE_CORUM <- TRUE
+  #source(file.path(curdir, "FindHomologyForSequences.R"))
+
+  source(file.path(curdir, "ReconcileDatafiles.R"))
 }
 
 cat("plotting results...\n")

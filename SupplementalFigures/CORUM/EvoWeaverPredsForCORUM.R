@@ -1,8 +1,10 @@
 ## TODO: clean up script
-load('/Users/aidan/Nextcloud/grad_school/PapersBeingSubmitted/ProtWeaver/Reviews/Review1/scripts/CORUM_BlastGeneration/orthology_groups/index.RData', v=T)
+## This file is provided for reference -- file paths may not match up correctly
+basedir <- getwd()
+load(file.path(basedir, 'scripts','CORUM_BlastGeneration','orthology_groups','index.RData'), v=T)
 all_used <- unique(unlist(FinalDataset[,1:2]))
 dendlist <- vector('list', length(all_used))
-denddir <- '/Users/aidan/Nextcloud/grad_school/PapersBeingSubmitted/ProtWeaver/Reviews/Review1/scripts/CORUM_BlastGeneration/CORUM_BlastDendrograms'
+denddir <- file.path(basedir, 'scripts','CORUM_BlastGeneration','CORUM_BlastDendrograms')
 for(i in seq_along(all_used)){
   cat(i, "/", length(all_used), '\r')
   ref <- which(all_used[i] == n)
@@ -37,7 +39,7 @@ for(i in seq_along(algs)){
 }
 names(tmp_res) <- algs
 
-load("/Users/aidan/Nextcloud/grad_school/PapersBeingSubmitted/ProtWeaver/Reviews/Review1/scripts/CORUM_BlastGeneration/OrthogroupsWithIndices.RData")
+load(file.path(basedir, "scripts","CORUM_BlastGeneration","OrthogroupsWithIndices.RData"))
 ew <- EvoWeaver(all_genes, MySpeciesTree=SpecTree)
 algs <- c("GeneDistance", "MoransI", "OrientationMI")
 for(i in seq_len(nrow(FinalDataset))){
@@ -69,9 +71,8 @@ RawResults <- tmp_resm
 res <- RawResults
 
 trueanswer <- FinalDataset$isTP
-#source("/Users/aidan/Nextcloud/RStudioSync/utils/PredictionCheck.R")
 
 res[is.na(res)] <- 0
 roc_list <- lapply(seq_len(ncol(res)), \(i) vcheckans(res[,i], trueanswer))
 names(roc_list) <- colnames(res)
-save(RawResults, FinalDataset, roc_list, file='/Users/aidan/Nextcloud/grad_school/PapersBeingSubmitted/ProtWeaver/Reviews/Review1/data/newFinalData/CORUM/CORUMNuclearPredictions.RData')
+save(RawResults, FinalDataset, roc_list, file=file.path(basedir, 'data','newFinalData','CORUM','CORUMNuclearPredictions.RData'))

@@ -1,5 +1,6 @@
 load(file.path(datadir, "SupplementalData", "CORUM", "CORUMNuclearPredictions.RData"))
 load(file.path(datadir, "Modules", "ModuleStatistics.RData"))
+source(file.path(datadir,"HelperScripts","ColorPalettes.R"))
 LEGEND_CEX <- 1
 
 pdf(file=file.path(figdir, "SXX_CORUMrocs.pdf"), width=4.3*2, height=4.3*2)
@@ -7,20 +8,30 @@ par(mar=c(3,3,1,0.5)+0.1, mgp=c(1.5,0.5,0))
 layout(matrix(1:4, nrow=2, byrow=TRUE))
 ## Plot main component ROCs
 aurocs <- vapply(roc_list, \(x) x$AUROC, numeric(1L))
-o <- order(aurocs, decreasing=TRUE)
-roc_list <- roc_list[o]
-aurocs <- aurocs[o]
+#o <- order(aurocs, decreasing=TRUE)
+#roc_list <- roc_list[o]
+#aurocs <- aurocs[o]
+roc_list <- roc_list[c(3,4,1:2,5:7,10:12,8:9)]
+cols <- rep(1:4, times=c(4,3,3,2))
+subcols <- c(1:4, 1:3, 1:3, 1:2)
+all_cols <- character(length(roc_list))
+for(i in seq_along(roc_list)){
+  all_cols[i] <- EW_shades[[cols[i]]][subcols[i]]
+}
 plot(c(0,1), c(0,1), type='l', lty=2, xlim=c(0,1), ylim=c(0,1), xaxs='i', yaxs='i',
      xlab="False positive rate", ylab='True positive rate', main="CORUM Nuclear Transport Complexes")
 for(i in seq_along(roc_list)){
-  lines(x=c(0,roc_list[[i]]$FPR,1), y=c(0,roc_list[[i]]$TPR,1), col=i, lty=ifelse(i>8, 4, 1))
+  lines(x=c(0,roc_list[[i]]$FPR,1), y=c(0,roc_list[[i]]$TPR,1),
+        col=all_cols[i], lty=ltys[subcols[i]])
 }
-old_cnames <- c("PAJaccard","PAOverlap","GLMI","GLDistance",
-               "RPMirrorTree","RPContextTree","TreeDistance","GeneVector",
-               "SequenceInfo","GeneDistance","MoransI","OrientationMI")
-new_cnames <- c("P/A Jaccard", "P/A Conservation", "G/L MI", "G/L Distance",
-               "RP MirrorTree","RP ContextTree", "Tree Distance", "Gene Vector",
-               "Sequence Info", "Gene Distance", "Moran's I", "Orientation MI")
+old_cnames <- c("GLMI","GLDistance","PAOverlap","PAJaccard",
+                "RPMirrorTree","RPContextTree","TreeDistance",
+                "GeneDistance","MoransI","OrientationMI",
+                "GeneVector", "SequenceInfo")
+new_cnames <- c("G/L MI", "G/L Distance","P/A Conservation", "P/A Jaccard",
+                "RP MirrorTree","RP ContextTree", "Tree Distance",
+                "Gene Distance", "Moran's I", "Orientation MI",
+                "Gene Vector", "Sequence Info")
 names(new_cnames) <- old_cnames
 # legend('bottomright', title="Component Algorithms", title.font=2,
 #        legend=paste0(new_cnames[names(roc_list)], " (", round(aurocs, 3), ")"), col=seq_len(length(roc_list)), lty=rep(c(1,4), times=c(8,length(roc_list)-8)), cex=0.5)
@@ -92,11 +103,11 @@ LINE_WIDTH <- 1.5
 auroc_adjoffset <- 0.25
 legend('topleft', title="\nComponent Algorithms", title.font=2,
        legend=new_cnames[names(roc_list)],
-       col=seq_len(length(roc_list)), lwd=LINE_WIDTH,
-       lty=rep(c(1,4), times=c(8,length(roc_list)-8)), cex=LEGEND_CEX,
+       col=all_cols, lwd=LINE_WIDTH,
+       lty=ltys[subcols], cex=LEGEND_CEX,
        inset=c(COLS[1],ROWS[1]), xpd=NA, bty='n', title.adj=0)
 legend('topleft', title="AUROCs\n(CORUM)", title.font=2, title.adj=0.5,
-       legend=sprintf("%.03f", aurocs), adj=auroc_adjoffset,
+       legend=sprintf("%.03f", aurocs[names(roc_list)]), adj=auroc_adjoffset,
        cex=LEGEND_CEX, xpd=NA, bty='n',
        inset=c(COLS[2],ROWS[1]))
 legend('topleft', title="\nEnsemble Models", title.font=2, title.adj=0,
