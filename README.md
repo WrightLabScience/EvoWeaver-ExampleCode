@@ -46,7 +46,7 @@ R -f MasterScript.R
 
 A detailed explanation of each folder follows.
 
-Additional data that were too large to include on GitHub are available on Zenodo (DOI: [10.5281/zenodo.13256882](http://doi.org/10.5281/zenodo.13256882)). **None of these files are needed to generate any figures**. Everything required for figure generation is available in this repository. Zenodo contains more data for completeness, as well as some supporting datafiles for scripts in the "OtherDataGeneration" folder.
+Additional data that were too large to include on GitHub are available on Zenodo (DOI: [10.5281/zenodo.14205427](http://doi.org/10.5281/zenodo.14205427)). **None of these files are needed to generate any figures**. Everything required for figure generation is available in this repository. Zenodo contains more data for completeness, as well as some supporting datafiles for scripts in the "OtherDataGeneration" folder.
 
 ## Main Figure Folders
 
