@@ -192,12 +192,23 @@ make_curve_for_pair(list(newres, oldres, otheralg, medalg, rankres, t_oldres),
 ## STRING
 load(file.path(basedir, "Data", "Multiclass", "StringComparisonData.RData"))
 EWScores[is.na(EWScores)] <- 0
-newres <- vcheckans(rowSums(EWScores[,1:12]), EWScores$Category<=3)
-rankres <- vcheckans(rowSums(apply(EWScores[,1:12], 2, \(x) (x-mean(x)) / sd(x))), EWScores$Category<=3)
-oldres <- vcheckans(rowSums(FullSubscoresString[,14:16]), EWScores$Category<=3)
-aurocs <- apply(EWScores[,1:12], 2, \(x)vcheckans(x, EWScores$Category<=3)$AUROC)
-otheralg <- vcheckans(EWScores[,which.max(aurocs)], EWScores$Category<=3)
-medalg <- vcheckans(EWScores[,order(aurocs)][,med_choice], EWScores$Category<=3)
+set.seed(768L)
+resultsList <- vector('list', 2)
+cutoff_positive_case <- 3L
+posTRUE <- which(FullSubscoresString$ActualCat <= cutoff_positive_case)
+posFALSE <- which(FullSubscoresString$ActualCat > cutoff_positive_case)
+ss <- sample(posFALSE, length(posTRUE), replace=FALSE)
+posFALSE <- ss
+EWScores <- EWScores[c(posTRUE,posFALSE),]
+FullSubscoresString <- FullSubscoresString[c(posTRUE, posFALSE),]
+
+actual <- FullSubscoresString$ActualCat <= cutoff_positive_case
+newres <- vcheckans(rowSums(EWScores[,1:12]), actual)
+rankres <- vcheckans(rowSums(apply(EWScores[,1:12], 2, \(x) (x-mean(x)) / sd(x))), actual)
+oldres <- vcheckans(rowSums(FullSubscoresString[,14:16]), actual)
+aurocs <- apply(EWScores[,1:12], 2, \(x)vcheckans(x, actual)$AUROC)
+otheralg <- vcheckans(EWScores[,which.max(aurocs)], actual)
+medalg <- vcheckans(EWScores[,order(aurocs)][,med_choice], actual)
 
 RandForestPreds <- predict(rf, EWScores[,1:12], type='prob')[,'TRUE']
 LogRegPreds <- predict(lr, EWScores[,1:12])

@@ -10,6 +10,7 @@ MFP5 <- PIDs$ModuleFP$Positive[,3]
 legend_cex <- 0.8207
 P_LWD <- 1.25
 BITSCORE_XLIM <- 120
+BITSCORE_MARK <- 60
 L_INSET <- c(0,0.01)
 cols <- c('#45A649','#D81B60', '#1E88E5', '#E0A608', "#824484")
 
@@ -64,7 +65,9 @@ for(i in c(0.2,0.4)){
   p3 <- sum(MFP5 < i) / length(MFP5)
   points(x=c(i,i,i), y=c(p1,p2,p3), col=cols[c(1:2,5)], lwd=P_LWD)
   # text(x=rep(i+0.065,3), y=c(p1,p2,p3)-c(0.015, 0.025, 0.015), font=2,
-  #      labels=sprintf("%.3f", c(p1,p2,p3)), col=cols[c(1:2,5)], cex=legend_cex)
+  #       labels=sprintf("%.3f", c(p1,p2,p3)), col=cols[c(1:2,5)], cex=legend_cex)
+  text(x=i+0.065, y=p1-0.03, font=2,
+        labels=sprintf("%.3f", p1), col=cols[1], cex=legend_cex)
 }
 legend("bottomright", legend=c("Same Pathway", "Same Global Pathway", "No Connection"),
        col=cols[c(1,2,5)], inset=L_INSET, lty=1, cex=legend_cex, bty='n')
@@ -86,6 +89,11 @@ plot.ecdf(CPp, col=cols[1], pch='.', verticals=TRUE,
           xlim=c(0, xmax), ylim=c(0,1),
 )
 plot.ecdf(CPn, col=cols[2], add=TRUE, pch='.', verticals = TRUE)
+p <- c(sum(CPp <= BITSCORE_MARK) / length(CPp),
+       sum(CPn <= BITSCORE_MARK) / length(CPn))
+abline(v=BITSCORE_MARK, col=cols[4], lwd=P_LWD)
+points(x=rep(BITSCORE_MARK, 2), y=p, col=cols[1:2], lwd=P_LWD)
+text(x=rep(BITSCORE_MARK+7.5, 2), y=p-0.05, font=2, labels=sprintf("%.03f", p), col=cols[1:2], cex=legend_cex)
 legend("right", legend=c("Within KO Group", "Between KO Groups"),
        col=cols[1:2], inset=L_INSET, lty=1, cex=legend_cex, bty='n')
 
@@ -96,6 +104,11 @@ plot.ecdf(MPp, col=cols[1], pch='.', verticals=TRUE, main='',
           xlim=c(0,xmax), ylim=c(0,1)
 )
 plot.ecdf(MPn, col=cols[2], add=TRUE, pch='.', verticals = TRUE)
+p <- c(sum(MPp <= BITSCORE_MARK) / length(MPp),
+       sum(MPn <= BITSCORE_MARK) / length(MPn))
+abline(v=BITSCORE_MARK, col=cols[4], lwd=P_LWD)
+points(x=rep(BITSCORE_MARK, 2), y=p, col=cols[1:2], lwd=P_LWD)
+text(x=rep(BITSCORE_MARK+7.5, 2), y=p-0.05, font=2, labels=sprintf("%.03f", p), col=cols[1:2], cex=legend_cex)
 legend("right", legend=c("Within Module Block", "Between Module Blocks"),
        col=cols[1:2], inset=L_INSET, lty=1, cex=legend_cex, bty='n')
 
@@ -109,11 +122,10 @@ plot.ecdf(MFP3, col=cols[1], pch='.', verticals=TRUE, main='',
 plot.ecdf(MFP4, col=cols[2], add=TRUE, pch='.', verticals = TRUE)
 plot.ecdf(MFP5, col=cols[5], add=TRUE, pch='.', verticals = TRUE)
 ## plot vertical line for MFP3
-bsc <- 60
-p3 <- sum(MFP3 <= bsc) / length(MFP3)
-abline(v=bsc, col=cols[4], lwd=P_LWD)
-points(x=bsc, y=p3, col=cols[1], lwd=P_LWD)
-text(x=bsc+7.5, y=p3-0.05, font=2, labels=sprintf("%.03f", p3), col=cols[1], cex=legend_cex)
+p3 <- sum(MFP3 <= BITSCORE_MARK) / length(MFP3)
+abline(v=BITSCORE_MARK, col=cols[4], lwd=P_LWD)
+points(x=BITSCORE_MARK, y=p3, col=cols[1], lwd=P_LWD)
+text(x=BITSCORE_MARK+7.5, y=p3-0.05, font=2, labels=sprintf("%.03f", p3), col=cols[1], cex=legend_cex)
 legend("bottomright", legend=c("Same Pathway", "Same Global Pathway", "No Connection"),
        col=cols[c(1,2,5)], inset=L_INSET, lty=1, cex=legend_cex, bty='n')
 

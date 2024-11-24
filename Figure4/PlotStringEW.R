@@ -204,7 +204,7 @@ plot_heatmap <- function(rocdata){
        border='black', lwd=1.5)
 }
 
-plot_newFig <- function(rocdata, sr){
+plot_newFig <- function(rocdata, sr, stringdenovo){
   ptsize <- 12
   label_cex <- 0.7
 
@@ -212,6 +212,7 @@ plot_newFig <- function(rocdata, sr){
   tc1 <- EW_fonts[3]
   #tc2 <- EW_shades$red[3]
   tc2 <- EW_fonts[4]
+  tc3 <- EW_fonts[2]
   c1 <- '#2B6DA8'
   c3 <- 'white'
   #tc2 <- '#FFC107'
@@ -226,17 +227,17 @@ plot_newFig <- function(rocdata, sr){
                          "coexpression", "textmining", "database")
   names(sr) <- conversion[names(sr)]
   names(sr) <- paste0(c('  ', rep("+ ", length(sr)-1)), names(sr))
-  sr <- c(0.50, sr, rocdata$EvoWeaver$RandomForest$AUROC)
-  names(sr)[c(1,length(sr))] <- c("  Random Guessing", "   EvoWeaver Random Forest")
+  sr <- c(0.50, sr, rocdata$EvoWeaver$RandomForest$AUROC, stringdenovo$AUROC)
+  names(sr)[c(1,length(sr)-1, length(sr))] <- c("  Random Guessing", "   EvoWeaver Random Forest",  "   STRING (de novo only)")
   width <- 1
   space <- 0.2
-  spacevec <- c(0.1,0.6,rep(0.2,length(sr)-3),0.6)
+  spacevec <- c(0.1,0.6,rep(0.2,length(sr)-4),0.6,0.2)
   plot(NULL, xlim=c(0,width*length(sr)+sum(spacevec)), ylim=c(0,1), axes=FALSE, xlab='', ylab='')
   abline(h=0.5,col='black',lty=1)
   barplot(sr, names.arg='', yaxt='n', ylim=c(0,1),
           #main="Performance Predicting KEGG Pathways",
           space=spacevec,
-          col=c(tc0, rep(tc1, 7), tc2), add=TRUE)
+          col=c(tc0, rep(tc1, 7), tc2, tc3), add=TRUE)
   title(ylab="Area Under the ROC Curve (AUROC)",
         mgp=c(1.5,1,0), cex.lab=0.75)
   axis(side=2, at=seq(0,1,0.1), mgp=c(0,0.5,0), cex.axis=0.75)
@@ -244,6 +245,7 @@ plot_newFig <- function(rocdata, sr){
   offsets <- seq(from=0,by=space, length.out=length(sr))
   offsets <- offsets + 0.1
   offsets[2:length(offsets)] <- offsets[2:length(offsets)] + 0.4
+  offsets[length(offsets)-1] <- offsets[length(offsets)-1]+0.4
   offsets[length(offsets)] <- offsets[length(offsets)]+0.4
   labs <- names(sr)
 
@@ -257,7 +259,7 @@ plot_newFig <- function(rocdata, sr){
   ## Arrow for x-axis
   yarrpos <- -0.06
   xarrst <- offsets[2]+1.1
-  xarrend <- length(sr)-1+offsets[length(sr)-1]-0.1
+  xarrend <- length(sr)-2+offsets[length(sr)-2]-0.1
   lineoff <- 0.0135
   arrows(y0=yarrpos, x0=xarrst, x1=xarrend,
          length=0.1, angle=20, col='black', lwd=3, xpd=NA)
@@ -295,7 +297,7 @@ plot_newFig <- function(rocdata, sr){
   dev.off(dev.list()['pdf'])
 }
 
-plot_STRINGROCs <- function(rocdata, stringrocs, actual){
+plot_STRINGROCs <- function(rocdata, stringrocs, stringdenovo, actual){
   pdf(plot2_name, onefile=TRUE, width=4.3*2, height=4.3*2)
   # par(mar=c(0, 0, 0, 0) + 1,
   # oma=c(0, 0, 0, 0) + 2,
@@ -417,5 +419,7 @@ plot_STRINGROCs <- function(rocdata, stringrocs, actual){
 StringVsEW <- make_rocs(FALSE)
 actual <- StringVsEW$StringScores$ActualCat <= 3
 StringRes <- calc_running_STRINGscore(StringVsEW$StringScores[,3:9], actual)
-plot_newFig(StringVsEW, StringRes)
-plot_STRINGROCs(StringVsEW, StringRes, actual)
+StringDenovoRes <- compute_string_combined_score(StringVsEW$StringScores[,c("neighborhood", "cooccurence", "fusion")])
+StringDenovoRes <- vcheckans(StringDenovoRes, actual)
+plot_newFig(StringVsEW, StringRes, StringDenovoRes)
+plot_STRINGROCs(StringVsEW, StringRes, StringDenovoRes, actual)
