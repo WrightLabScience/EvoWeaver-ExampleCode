@@ -76,11 +76,12 @@ make_plot_for_pair <- function(x, y, xlab, ylab, main=''){
 
 make_curve_for_pair <- function(vals, xlab="False positive rate",
                                 ylab="True positive rate", main='',
-                                ensembleIsKEGG=FALSE){
+                                ensembleIsKEGG=FALSE, ensembleIsSTRING=FALSE){
   if(ensembleIsKEGG) key[6] <- "Ensemble Trained on KEGG"
-  rearr <- c(2,5,1,3,4)
+  if(ensembleIsSTRING) key[2] <- "Ensemble Trained on KEGG"
+  rearr <- c(2,1,3,4)
   if(length(vals) == 6){
-    rearr <- c(2,5,1,3,6,4)
+    rearr <- c(2,1,3,6,4)
   }
   vals <- vals[rearr]
   key <- key[rearr]
@@ -89,17 +90,29 @@ make_curve_for_pair <- function(vals, xlab="False positive rate",
        main=main,
        xlab=xlab,
        ylab=ylab)
-  col_rearr <- c(1:4,6,5)
+  col_rearr <- c(1:3,6,4)
   for(i in seq_along(vals)){
     lines(x=vals[[i]]$FPR, y=vals[[i]]$TPR, col=all_cols[col_rearr[i]])
   }
   leg <- paste0(key, " (", vapply(vals, \(x) sprintf("%.03f", x$AUROC), ''), ')')
-  if(length(vals) == 5){
+  if(length(vals) == 4){
     leg <- c(leg, '')
-    all_cols[6] <- NA
+    all_cols[5] <- NA
   }
-  legend('bottomright',
-         legend=leg, col=all_cols[col_rearr], lty=1, bty='n', cex=legend_cex, lwd=2)
+  legend('bottomright', inset=c(0.28,0),
+         legend=key, col=all_cols[col_rearr], lty=1, bty='n', cex=legend_cex, lwd=2)
+  aurocs <- vapply(vals, \(x) x$AUROC, 1)
+  f <- rep(1, length(aurocs))
+  f[which.max(aurocs)] <- 2
+  legend('bottomright', inset=c(0.15,0), title="AUROC", adj=c(0.25,0.5), text.font=f, title.font=2,title.adj=c(0.5,0.5),
+         legend=vapply(aurocs, \(x) sprintf("%.03f", x), ''), bty='n', cex=legend_cex,
+         )
+  aurocs <- vapply(vals, \(x) partialROC(x$TPR, x$FPR, 0.10), 1)
+  f <- rep(1, length(aurocs))
+  f[which.max(aurocs)] <- 2
+  legend('bottomright', inset=c(0,0), title="pAUROC", adj=c(0.25,0.5), text.font=f, title.font=2, title.adj=c(0.5,0.5),
+         legend=vapply(aurocs, \(x) sprintf("%.03f", x), ''), bty='n', cex=legend_cex,
+         )
 
   # v <- par(c("fig", "new", "mar"))
   # # left, right, bottom, top
@@ -213,12 +226,13 @@ medalg <- vcheckans(EWScores[,order(aurocs)][,med_choice], actual)
 RandForestPreds <- predict(rf, EWScores[,1:12], type='prob')[,'TRUE']
 LogRegPreds <- predict(lr, EWScores[,1:12])
 NeuralNetPreds <- predict(nn, EWScores[,1:12])[,1]
-corum_to_kegg <- list(Logit=vcheckans(LogRegPreds, EWScores$Category<=3),
-                      RandomForest=vcheckans(RandForestPreds, EWScores$Category<=3),
-                      NeuralNetwork=vcheckans(NeuralNetPreds, EWScores$Category<=3))
+corum_to_kegg <- list(Logit=vcheckans(LogRegPreds, actual),
+                      RandomForest=vcheckans(RandForestPreds, actual),
+                      NeuralNetwork=vcheckans(NeuralNetPreds, actual))
 t_oldres <- corum_to_kegg[which.max(vapply(corum_to_kegg, \(x) x$AUROC, numeric(1L)))][[1]]
 
-make_curve_for_pair(list(newres, oldres, otheralg, medalg, rankres, t_oldres), main="STRING Comparison")
+make_curve_for_pair(list(newres, oldres, otheralg, medalg, rankres, t_oldres),
+                    main="STRING Comparison on KEGG Pathways", ensembleIsSTRING = TRUE)
 
 # make_plot_for_pair(bestother, allx, "Best Component Method", "Sum of Evidence Streams")
 # make_plot_for_pair(bestother, ally, "Best Component Method", "Best Ensemble Method")

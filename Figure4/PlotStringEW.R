@@ -204,7 +204,7 @@ plot_heatmap <- function(rocdata){
        border='black', lwd=1.5)
 }
 
-plot_newFig <- function(rocdata, sr, stringdenovo){
+plot_newFig <- function(rocdata, sr, stringdenovo, transferperf){
   ptsize <- 12
   label_cex <- 0.7
 
@@ -212,9 +212,11 @@ plot_newFig <- function(rocdata, sr, stringdenovo){
   tc1 <- EW_fonts[3]
   #tc2 <- EW_shades$red[3]
   tc2 <- EW_fonts[4]
-  tc3 <- EW_fonts[2]
+  #tc3 <- EW_fonts[2]
+  tc3 <- EW_shades$yellow[2]
   c1 <- '#2B6DA8'
   c3 <- 'white'
+  c4 <- "#824484"
   #tc2 <- '#FFC107'
   #c2 <- '#E0A608'
   pdf(file=plot1_name,
@@ -227,17 +229,20 @@ plot_newFig <- function(rocdata, sr, stringdenovo){
                          "coexpression", "textmining", "database")
   names(sr) <- conversion[names(sr)]
   names(sr) <- paste0(c('  ', rep("+ ", length(sr)-1)), names(sr))
-  sr <- c(0.50, sr, rocdata$EvoWeaver$RandomForest$AUROC, stringdenovo$AUROC)
-  names(sr)[c(1,length(sr)-1, length(sr))] <- c("  Random Guessing", "   EvoWeaver Random Forest",  "   STRING (de novo only)")
+  sr <- c(0.50, sr, stringdenovo$AUROC, rocdata$EvoWeaver$RandomForest$AUROC, transferperf$AUROC)
+  names(sr)[c(1,length(sr)-2, length(sr)-1, length(sr))] <- c("  Random Guessing",
+                                                "   STRING (de novo only)",
+                                                "   EvoWeaver Random Forest",
+                                                "   EvoWeaver Transfer")
   width <- 1
   space <- 0.2
-  spacevec <- c(0.1,0.6,rep(0.2,length(sr)-4),0.6,0.2)
+  spacevec <- c(0.1,0.6,rep(0.2,length(sr)-5),0.6,0.2,0.2)
   plot(NULL, xlim=c(0,width*length(sr)+sum(spacevec)), ylim=c(0,1), axes=FALSE, xlab='', ylab='')
   abline(h=0.5,col='black',lty=1)
   barplot(sr, names.arg='', yaxt='n', ylim=c(0,1),
           #main="Performance Predicting KEGG Pathways",
           space=spacevec,
-          col=c(tc0, rep(tc1, 7), tc2, tc3), add=TRUE)
+          col=c(tc0, rep(tc1, 7), c4, tc2, tc3), add=TRUE)
   title(ylab="Area Under the ROC Curve (AUROC)",
         mgp=c(1.5,1,0), cex.lab=0.75)
   axis(side=2, at=seq(0,1,0.1), mgp=c(0,0.5,0), cex.axis=0.75)
@@ -245,6 +250,7 @@ plot_newFig <- function(rocdata, sr, stringdenovo){
   offsets <- seq(from=0,by=space, length.out=length(sr))
   offsets <- offsets + 0.1
   offsets[2:length(offsets)] <- offsets[2:length(offsets)] + 0.4
+  offsets[length(offsets)-2] <- offsets[length(offsets)-2]+0.4
   offsets[length(offsets)-1] <- offsets[length(offsets)-1]+0.4
   offsets[length(offsets)] <- offsets[length(offsets)]+0.4
   labs <- names(sr)
@@ -259,7 +265,7 @@ plot_newFig <- function(rocdata, sr, stringdenovo){
   ## Arrow for x-axis
   yarrpos <- -0.06
   xarrst <- offsets[2]+1.1
-  xarrend <- length(sr)-2+offsets[length(sr)-2]-0.1
+  xarrend <- length(sr)-3+offsets[length(sr)-3]-0.1
   lineoff <- 0.0135
   arrows(y0=yarrpos, x0=xarrst, x1=xarrend,
          length=0.1, angle=20, col='black', lwd=3, xpd=NA)
@@ -421,5 +427,41 @@ actual <- StringVsEW$StringScores$ActualCat <= 3
 StringRes <- calc_running_STRINGscore(StringVsEW$StringScores[,3:9], actual)
 StringDenovoRes <- compute_string_combined_score(StringVsEW$StringScores[,c("neighborhood", "cooccurence", "fusion")])
 StringDenovoRes <- vcheckans(StringDenovoRes, actual)
-plot_newFig(StringVsEW, StringRes, StringDenovoRes)
+
+## Reproducing predictions from RSRobustnessPrepPlot.R
+## CORUM Ensemble models
+load(file.path(SourceDir, "Data", "SupplementalData", "CORUM", "CORUMNuclearPredictions.RData"))
+library(randomForest)
+library(neuralnet)
+set.seed(819L)
+cln <- colnames(RawResults)
+RawResults[is.na(RawResults)] <- 0
+train_data <- cbind(as.data.frame(RawResults), isTP=FinalDataset$isTP)
+
+rf <- randomForest(as.data.frame(RawResults), y=as.factor(FinalDataset$isTP), maxnodes=25, )
+lr <- glm(isTP ~ ., data=train_data, family='binomial')
+nn <- neuralnet(isTP ~ ., hidden=12, threshold=0.5, stepmax=1e6,
+                data=train_data, linear.output=FALSE)
+EWScores[is.na(EWScores)] <- 0
+set.seed(768L)
+resultsList <- vector('list', 2)
+cutoff_positive_case <- 3L
+posTRUE <- which(FullSubscoresString$ActualCat <= cutoff_positive_case)
+posFALSE <- which(FullSubscoresString$ActualCat > cutoff_positive_case)
+ss <- sample(posFALSE, length(posTRUE), replace=FALSE)
+posFALSE <- ss
+EWScores <- EWScores[c(posTRUE,posFALSE),]
+FullSubscoresString <- FullSubscoresString[c(posTRUE, posFALSE),]
+
+actual <- FullSubscoresString$ActualCat <= cutoff_positive_case
+RandForestPreds <- predict(rf, EWScores[,1:12], type='prob')[,'TRUE']
+LogRegPreds <- predict(lr, EWScores[,1:12])
+NeuralNetPreds <- predict(nn, EWScores[,1:12])[,1]
+corum_to_kegg <- list(Logit=vcheckans(LogRegPreds, actual),
+                      RandomForest=vcheckans(RandForestPreds, actual),
+                      NeuralNetwork=vcheckans(NeuralNetPreds, actual))
+TransferLearning <- corum_to_kegg[which.max(vapply(corum_to_kegg, \(x) x$AUROC, numeric(1L)))][[1]]
+
+
+plot_newFig(StringVsEW, StringRes, StringDenovoRes, TransferLearning)
 plot_STRINGROCs(StringVsEW, StringRes, StringDenovoRes, actual)
