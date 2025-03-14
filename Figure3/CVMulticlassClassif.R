@@ -110,7 +110,7 @@ for(i in seq_along(testSets)){
 cat("Calculating feature importance:\n")
 if(!USE_KEGG){
   fname <- file.path(figdir, "MainFigures", "3b_featimportance.pdf")
-  pdf(file=fname, width=3.5, height=2, pointsize = 6)
+  pdf(file=fname, width=4, height=2.115, pointsize = 6)
   cvec <- c('#45A649','#D81B60', '#1E88E5','#FFC107')
   allconf <- vapply(testSets, \(x) importance(x$model, type=1L, scale=FALSE), numeric(nrow(testSets[[1]]$model$importance)))
   rownames(allconf) <- colnames(subpreds)[1:12]
