@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/702655655.svg)](https://doi.org/10.5281/zenodo.15027870)
 # Online Information for "EvoWeaver: Large-scale prediction of gene functional associations from coevolutionary signals"
 
 This repository contains scripts to reproduce the figures in "EvoWeaver: Large-scale prediction of gene functional associations from coevolutionary signals", by Aidan H. Lakshman and Erik S. Wright.
