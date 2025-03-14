@@ -130,7 +130,8 @@ if(!USE_KEGG){
   axis(side=1, at=alabv, labels=(paste0(alabv*100, '%')), mgp=c(3,0.5,0))
   yacc <- seq_len(nrow(allconf))*1 + seq(0, w*(nrow(allconf)-1), by=w) - 0.1
   for(i in seq_len(nrow(allconf))){
-    lines(y=rep(yacc[i], 2), x=c(min(allconf[i,]), max(allconf[i,])), lwd=2,xpd=NA)
+    #lines(y=rep(yacc[i], 2), x=c(min(allconf[i,]), max(allconf[i,])), lwd=2,xpd=NA)
+    points(y=rep(yacc[i], ncol(allconf)), x=allconf[i,], pch=21, cex=0.75, xpd=NA)
   }
   dev.off()
   layout(matrix(1))
