@@ -391,15 +391,8 @@ methods_to_use <- c("GeneVector",
                     "SequenceInfo")
 
 ss <- data.frame(Gene1=c("G1", "G1", "G2"), Gene2=c("G2", "G3", "G3"))
-p <- predict(ew, Method=methods_to_use, Verbose=FALSE, Subset=ss)
+preds <- predict(ew, Method=methods_to_use, Verbose=FALSE, Subset=ss)
 
-## it's also possible to convert EvoWeb objects to matrices
-## just like you would a dist object
-preds <- vapply(p, \(x){
-  m <- as.matrix(x)
-  m[upper.tri(m)]
-}, numeric(3L))
-rownames(preds) <- c("G1-G2", "G1-G3", "G2-G3")
 preds
 ```
 
