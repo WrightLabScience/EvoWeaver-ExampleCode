@@ -20,7 +20,7 @@ A tutorial for SynExtend is available in the file [EvoWeaverTutorial.Rmd](https:
 
 ## Reproducing Figures from the Manuscript
 
-This repository also contains scripts to reproduce the figures in "EvoWeaver: Large-scale prediction of gene functional associations from coevolutionary signals", by Aidan H. Lakshman and Erik S. Wright.
+This repository also contains scripts to reproduce the figures in the original publication, as well as some datafiles for the initial analyses.
 
 This repository has the following structure (shown in the order they're discussed below):
 ```
