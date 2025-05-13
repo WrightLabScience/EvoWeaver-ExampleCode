@@ -1,7 +1,26 @@
 [![DOI](https://zenodo.org/badge/702655655.svg)](https://doi.org/10.5281/zenodo.15027870)
 # Online Information for "EvoWeaver: Large-scale prediction of gene functional associations from coevolutionary signals"
 
-This repository contains scripts to reproduce the figures in "EvoWeaver: Large-scale prediction of gene functional associations from coevolutionary signals", by Aidan H. Lakshman and Erik S. Wright.
+This repository also contains online information for "EvoWeaver: Large-scale prediction of gene functional associations from coevolutionary signals", by Aidan H. Lakshman and Erik S. Wright.
+
+## Tutorial and Installation
+
+EvoWeaver is distributed as part of the [SynExtend](https://bioconductor.org/packages/release/bioc/html/SynExtend.html) package for R. If you already have R installed, you can install SynExtend with the following:
+
+```r
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("SynExtend")
+```
+
+A tutorial for SynExtend is available in the file [EvoWeaverTutorial.Rmd](https://github.com/WrightLabScience/EvoWeaver-ExampleCode/blob/6d8ad351e9fdef06c6db79745a30a5c3a65c814a/EvoWeaverTutorial.Rmd). This is an R Markdown Notebook that explains how to use EvoWeaver with some toy examples.
+
+*Note: some users have reported a rare bug in running the tutorial on Ubuntu, and I am currently working on resolving it.*
+
+## Reproducing Figures from the Manuscript
+
+This repository also contains scripts to reproduce the figures in "EvoWeaver: Large-scale prediction of gene functional associations from coevolutionary signals", by Aidan H. Lakshman and Erik S. Wright.
 
 This repository has the following structure (shown in the order they're discussed below):
 ```
