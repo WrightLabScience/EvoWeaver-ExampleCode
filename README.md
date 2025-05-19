@@ -16,11 +16,14 @@ BiocManager::install("SynExtend")
 
 A tutorial for SynExtend is available in the file [EvoWeaverTutorial.Rmd](https://github.com/WrightLabScience/EvoWeaver-ExampleCode/blob/6d8ad351e9fdef06c6db79745a30a5c3a65c814a/EvoWeaverTutorial.Rmd). This is an R Markdown Notebook that explains how to use EvoWeaver with some toy examples.
 
-*Note: some users have reported a rare bug in running the tutorial on Ubuntu, and I am currently working on resolving it.*
+This repository contains the aforementioned tutorial as well as scripts and data used to reproduce figures from the original publication. Please note that some files are stored using Git LFS due to their size. If you are interested in using these files, you'll have to execute the following commands to clone the repo and then download the LFS files:
+
+```bash
+git clone https://github.com/WrightLabScience/EvoWeaver-ExampleCode.git
+git lfs fetch --all
+```
 
 ## Reproducing Figures from the Manuscript
-
-This repository also contains scripts to reproduce the figures in the original publication, as well as some datafiles for the initial analyses.
 
 This repository has the following structure (shown in the order they're discussed below):
 ```
